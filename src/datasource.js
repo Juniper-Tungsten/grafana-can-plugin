@@ -20,19 +20,24 @@ export class GenericDatasource {
   }
 
   query(options) {
-    var query = this.buildQueryParameters(options);
-    query.targets = query.targets.filter(t => !t.hide);
+    return this.set_auth_token().then(x=>{
+      var query = this.buildQueryParameters(options);
+      // query.targets = query.targets.filter(t => !t.hide);
 
-    if (query.targets.length <= 0) {
-      return this.q.when({data: []});
-    }
-
-    return this.backendSrv.datasourceRequest({
-      url: this.url + '/query',
-      data: query,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
+      // if (query.targets.length <= 0) {
+      //   return this.q.when({data: []});
+      // }
+      if( !query )
+        return this.q.when({data: []});
+      return this.backendSrv.datasourceRequest({
+        url: this.url + '/api/qe/query',
+        data: query,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json',
+                    'X-CSRF-Token': this.auth_token
+                }
+      });
+    });    
   }
 
   set_auth_token(){
@@ -43,8 +48,8 @@ export class GenericDatasource {
       data: auth_dict,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).done(response => {
-      console.log('::::::::');
-      console.log(response);
+      // console.log('::::::::');
+      // console.log(response);
       if (response._csrf) {
             this.auth_token = response._csrf;
             return { status: "success", message: "Data source is working", title: "Success" };
@@ -128,9 +133,10 @@ export class GenericDatasource {
   mapToTextValue(result) {
     // console.log('$$$$$$');
     // console.log(result);
+    
     return _.map(result.data.data, (d, i) => {
-      console.log(d);
-      console.log(i);
+      // console.log(d);
+      // console.log(i);
       return { text: d["fields.value"], value: i};
       // if (d && d.text && d.value) {
       //   return { text: d.text, value: d.value };
@@ -146,7 +152,22 @@ export class GenericDatasource {
     // return metrics;
    
   }
+  getpselects(table_name){
+    var api_endpoint = "/api/qe/table/schema/"+table_name;
+     return this.set_auth_token().then(x => {
+        return this.backendSrv.datasourceRequest({
+        url: this.url + api_endpoint,
+        method: 'GET',
+        headers: { 'X-CSRF-Token': this.auth_token }
+      }).then(this.mapToValue);
+    });
+  }
+  mapToValue(x){
+    return _.map(x.data.columns, (d,i) => {
+      return {text: d.name, type: d.datatype, value: i};
+    });
 
+  }
   buildQueryParameters(options) {
     //remove placeholder targets
     options.targets = _.filter(options.targets, target => {
@@ -154,16 +175,33 @@ export class GenericDatasource {
     });
 
     var targets = _.map(options.targets, target => {
+      var to_time = new Date().getTime();
+      var from_time = to_time - 600000;
       return {
-        target: this.templateSrv.replace(target.target),
-        refId: target.refId,
-        hide: target.hide,
-        type: target.type || 'timeserie'
+        
+        autoSort:true,
+        "async":false,
+        "formModelAttrs":{
+          "table_name":this.templateSrv.replace(target.target),
+          "table_type":"STAT",
+          "query_prefix":"stat",
+          "from_time":from_time,
+          "from_time_utc":from_time,
+          "to_time":to_time,
+          "to_time_utc":to_time,
+          "select":"T=,"+target.selected.text,
+          "time_granularity":30,
+          "time_granularity_unit":"mins",
+          "limit":"150000"
+        },
+        chunk: 1,
+        chunkSize: 10000,
+        hide: target.hide
       };
     });
 
     options.targets = targets;
 
-    return options;
+    return targets[0];
   }
 }

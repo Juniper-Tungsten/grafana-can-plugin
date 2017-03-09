@@ -10,12 +10,14 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.uiSegmentSrv = uiSegmentSrv;
     this.target.target = this.target.target || 'select metric';
     this.target.type = this.target.type || 'timeserie';
-  }
+    this.target.pselect = this.target.pselect || false;
+    this.target.selected = this.target.selected || [];
+}
 
   getOptions() {
-    var x =  this.datasource.metricFindQuery(this.target);
-    console.log("############");
-    console.log(x);
+    // var x =  this.datasource.metricFindQuery(this.target);
+    // console.log("############");
+    // console.log(x);
     return this.datasource.metricFindQuery(this.target)
       .then(this.uiSegmentSrv.transformToSegments(false));
       // Options have to be transformed by uiSegmentSrv to be usable by metric-segment-model directive
@@ -26,7 +28,18 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
   }
 
   onChangeInternal() {
+    var selected_table = this.target.target;
+    if(!selected_table.includes('select metric')){
+      this.datasource.getpselects(selected_table).then(pselect=>{
+        this.target.pselect = pselect;
+        // console.log(this.target.pselect);
+      });
+    }
+  }
+  cSelect(){
+    console.log("selected c:");console.log(this.target.selected);
     this.panelCtrl.refresh(); // Asks the panel to refresh data.
+    
   }
 }
 
