@@ -37,7 +37,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     }
   }
   cSelect(){
-    console.log("selected c:");console.log(this.target.selected);
+    // console.log("selected c:");console.log(this.target.selected);
     this.panelCtrl.refresh(); // Asks the panel to refresh data.
     
   }

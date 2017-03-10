@@ -20,6 +20,7 @@ export class GenericDatasource {
   }
 
   query(options) {
+    // console.log(options);
     return this.set_auth_token().then(x=>{
       var query = this.buildQueryParameters(options);
       // query.targets = query.targets.filter(t => !t.hide);
@@ -36,11 +37,47 @@ export class GenericDatasource {
         headers: { 'Content-Type': 'application/json',
                     'X-CSRF-Token': this.auth_token
                 }
+      }).then(result => {
+        // console.log('res');
+        // console.log(result);
+         var newData = [];
+         
+         _.each(result.data.data, (d,i)=>{
+           
+           var time = d["T"];
+          //  console.log('^^^^^^^');console.log(d);
+            _.each(d, (v,k)=>{
+              if(k != "T" && k != "CLASS(T)")
+              {
+                  // var time = result.data[i]['T='];
+                  // console.log(time);
+                  // newData[time] = v;
+                  newData.push([v/100000,time/1000]);
+              }
+            });
+        });
+        // console.log("!!!!!!!");
+        // console.log(newData);
+        return {data:[{'target':query.formModelAttrs.table_name,'datapoints':newData}]};
+        // return _.map(result.data, (d,i)=>{
+        //     return d["process_mem_cpu_usage.mem_virt"];
+        //     // var curr_val;
+        //     // var prop = _.pick(d, (v,k)=>{
+        //     //      return k != "T=" && k != "CLASS(T=)"
+        //     // });
+        //     // Object.keys(prop).forEach(k=>{
+        //     //   console.log("selected prop:"+k);
+        //     //   return k;
+        //     // })
+        //     // return curr_val;
+        // }).then(d=>{return {data:d};});
       });
     });    
   }
 
   set_auth_token(){
+    if(this.auth_token)
+      return this.q.when({data: []});
     var auth_dict = {username:this.can_username, password:this.can_password};
     return $.ajax({
       url: this.url + '/authenticate',
@@ -175,8 +212,12 @@ export class GenericDatasource {
     });
 
     var targets = _.map(options.targets, target => {
-      var to_time = new Date().getTime();
-      var from_time = to_time - 600000;
+      var to_time = options.range.to._i ;
+      var from_time = options.range.from._i;
+      to_time = to_time ||  new Date().getTime();
+      from_time = from_time || to_time - 60000000;
+      to_time = Math.round(to_time);
+      from_time = Math.round(from_time);
       return {
         
         autoSort:true,
@@ -189,10 +230,10 @@ export class GenericDatasource {
           "from_time_utc":from_time,
           "to_time":to_time,
           "to_time_utc":to_time,
-          "select":"T=,"+target.selected.text,
-          "time_granularity":30,
+          "select":"T,"+target.selected.text,
+          "time_granularity":2,
           "time_granularity_unit":"mins",
-          "limit":"150000"
+          "limit":options.maxDataPoints
         },
         chunk: 1,
         chunkSize: 10000,
@@ -200,7 +241,7 @@ export class GenericDatasource {
       };
     });
 
-    options.targets = targets;
+    // options.targets = targets;
 
     return targets[0];
   }
