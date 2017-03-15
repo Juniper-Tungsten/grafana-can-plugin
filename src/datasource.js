@@ -20,58 +20,52 @@ export class GenericDatasource {
   }
 
   query(options) {
-    // console.log(options);
     return this.set_auth_token().then(x=>{
-      var query = this.buildQueryParameters(options);
-      // query.targets = query.targets.filter(t => !t.hide);
-
-      // if (query.targets.length <= 0) {
-      //   return this.q.when({data: []});
-      // }
-      if( !query )
+      var query_array = this.buildQueryParameters(options);
+      if( !query_array )
         return this.q.when({data: []});
-      return this.backendSrv.datasourceRequest({
-        url: this.url + '/api/qe/query',
-        data: query,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-                    'X-CSRF-Token': this.auth_token
-                }
-      }).then(result => {
-        // console.log('res');
-        // console.log(result);
-         var newData = [];
-         
-         _.each(result.data.data, (d,i)=>{
-           
-           var time = d["T"];
-          //  console.log('^^^^^^^');console.log(d);
+      function data_process(result){
+        var newData = [];
+        _.each(result.data.data, (d,i)=>{
+          var time = d["T"];
             _.each(d, (v,k)=>{
               if(k != "T" && k != "CLASS(T)")
-              {
-                  // var time = result.data[i]['T='];
-                  // console.log(time);
-                  // newData[time] = v;
                   newData.push([v/100000,time/1000]);
-              }
             });
         });
-        // console.log("!!!!!!!");
-        // console.log(newData);
-        return {data:[{'target':query.formModelAttrs.table_name,'datapoints':newData}]};
-        // return _.map(result.data, (d,i)=>{
-        //     return d["process_mem_cpu_usage.mem_virt"];
-        //     // var curr_val;
-        //     // var prop = _.pick(d, (v,k)=>{
-        //     //      return k != "T=" && k != "CLASS(T=)"
-        //     // });
-        //     // Object.keys(prop).forEach(k=>{
-        //     //   console.log("selected prop:"+k);
-        //     //   return k;
-        //     // })
-        //     // return curr_val;
-        // }).then(d=>{return {data:d};});
+        return {'target':result.data.queryJSON.table,'datapoints':newData};
+        
+        
+      }
+      var promise_array=[];
+      for(var i in query_array){
+          var p = this.backendSrv.datasourceRequest({
+          url: this.url + '/api/qe/query',
+          data: query_array[i],
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json',
+                      'X-CSRF-Token': this.auth_token
+                   }
+          });
+          promise_array[i]=p;
+      }
+      return this.q.all(promise_array).then(allData =>{
+        var return_obj={data:[]};
+        for(var i in allData)
+          return_obj.data[i] = data_process(allData[i]);
+        return return_obj;
       });
+      // function busywait(){
+      //   var promise = new Promise((res,reject)=>{
+      //     setTimeout(function() {
+      //        res('x');
+      //     }, 15000);
+      //   });
+      //   return promise;
+      // }
+      // return busywait().then(x=>{
+      //   return return_obj;        
+      // });
     });    
   }
 
@@ -85,14 +79,13 @@ export class GenericDatasource {
       data: auth_dict,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     }).done(response => {
-      // console.log('::::::::');
-      // console.log(response);
       if (response._csrf) {
             this.auth_token = response._csrf;
             return { status: "success", message: "Data source is working", title: "Success" };
       }
     });
   }
+
   testDatasource() {
     
     // var auth_dict={auth:{
@@ -131,12 +124,6 @@ export class GenericDatasource {
   }
 
   metricFindQuery(options) {
-    // var dateObj = Date();
-    // if (this.metrics)
-    // {
-    //   var x = this.metrics;
-      
-    // }
     var req_obj={};
     req_obj.toTimeUTC = new Date().getTime();
     req_obj.fromTimeUTC = req_obj.toTimeUTC - 600000;
@@ -145,10 +132,6 @@ export class GenericDatasource {
     req_obj.where = [[{"name":"name","value":"STAT","op":7}]];
     var api_endpoint = "/api/qe/table/column/values";
 
-    // var target = typeof (options) === "string" ? options : options.target;
-    // var interpolated = {
-    //     target: this.templateSrv.replace(target, null, 'regex')
-    // };
     return this.set_auth_token().then(x => {
         if (this.metrics)
           return this.metrics;
@@ -168,27 +151,11 @@ export class GenericDatasource {
   }
 
   mapToTextValue(result) {
-    // console.log('$$$$$$');
-    // console.log(result);
-    
     return _.map(result.data.data, (d, i) => {
-      // console.log(d);
-      // console.log(i);
       return { text: d["fields.value"], value: i};
-      // if (d && d.text && d.value) {
-      //   return { text: d.text, value: d.value };
-      // } else if (_.isObject(d)) {
-      //   return { text: d, value: i};
-      // }
-      // else if ( d && d["fields.value"]){
-      //   return { text: d["fields.value"], value: d["fields.value"]};
-      // }
-      // return { text: d, value: d };
     });
-    // this.metrics = metrics;
-    // return metrics;
-   
   }
+
   getpselects(table_name){
     var api_endpoint = "/api/qe/table/schema/"+table_name;
      return this.set_auth_token().then(x => {
@@ -199,12 +166,14 @@ export class GenericDatasource {
       }).then(this.mapToValue);
     });
   }
+
   mapToValue(x){
     return _.map(x.data.columns, (d,i) => {
       return {text: d.name, type: d.datatype, value: i};
     });
 
   }
+
   buildQueryParameters(options) {
     //remove placeholder targets
     options.targets = _.filter(options.targets, target => {
@@ -243,6 +212,6 @@ export class GenericDatasource {
 
     // options.targets = targets;
 
-    return targets[0];
+    return targets;
   }
 }
