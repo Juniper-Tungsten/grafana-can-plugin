@@ -55,17 +55,6 @@ export class GenericDatasource {
           return_obj.data[i] = data_process(allData[i]);
         return return_obj;
       });
-      // function busywait(){
-      //   var promise = new Promise((res,reject)=>{
-      //     setTimeout(function() {
-      //        res('x');
-      //     }, 15000);
-      //   });
-      //   return promise;
-      // }
-      // return busywait().then(x=>{
-      //   return return_obj;        
-      // });
     });    
   }
 
@@ -87,15 +76,6 @@ export class GenericDatasource {
   }
 
   testDatasource() {
-    
-    // var auth_dict={auth:{
-    //                       passwordCredentials:{
-    //                                             username: this.can_username ,
-    //                                             password: this.can_password
-    //                                           },
-    //                       tenantName: "admin"
-    //                     }
-    //               }
     var x = this.set_auth_token();
     return x;
   }
@@ -147,7 +127,6 @@ export class GenericDatasource {
         return y;
       });
     });
-    
   }
 
   mapToTextValue(result) {
@@ -171,7 +150,6 @@ export class GenericDatasource {
     return _.map(x.data.columns, (d,i) => {
       return {text: d.name, type: d.datatype, value: i};
     });
-
   }
 
   buildQueryParameters(options) {
