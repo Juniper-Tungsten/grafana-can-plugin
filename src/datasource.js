@@ -1,5 +1,5 @@
 import _ from "lodash";
-
+import {getAuthDict, processAuthResponse} from './common';
 export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
@@ -10,17 +10,18 @@ export class GenericDatasource {
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
     if (instanceSettings.jsonData !== undefined){
-      this.keystone_url = instanceSettings.jsonData.keystone_url;
-      this.can_username = instanceSettings.jsonData.can_username;
-      this.can_password = instanceSettings.jsonData.can_password;
+      this.keystoneUrl = instanceSettings.jsonData.keystoneUrl;
+      this.canUsername = instanceSettings.jsonData.canUsername;
+      this.canPassword = instanceSettings.jsonData.canPassword;
       this.instanceSettings = instanceSettings;
     }
-    this.auth_token = null;
+    this.authToken = null;
     this.metrics = null;
+    this.authTokenExpire = null;
   }
 
   query(options) {
-    return this.set_auth_token().then(x=>{
+    return this.setAuthToken().then(x=>{
       var query_array = this.buildQueryParameters(options);
       if( !query_array )
         return this.q.when({data: []});
@@ -44,7 +45,7 @@ export class GenericDatasource {
           data: query_array[i],
           method: 'POST',
           headers: { 'Content-Type': 'application/json',
-                      'X-CSRF-Token': this.auth_token
+                      'X-CSRF-Token': this.authToken
                    }
           });
           promise_array[i]=p;
@@ -58,26 +59,30 @@ export class GenericDatasource {
     });    
   }
 
-  set_auth_token(){
-    if(this.auth_token)
+  setAuthToken(){
+    //TODO: make sure setAuthToken renews the token when it expires;
+    if(this.authToken != null)
       return this.q.when({data: []});
-    var auth_dict = {username:this.can_username, password:this.can_password};
-    return $.ajax({
-      url: this.url + '/authenticate',
+    let x = getAuthDict(this.canUsername,this.canPassword);
+    console.log(x);
+    return this.backendSrv.datasourceRequest({
+      url: this.keystoneUrl,
       method: 'POST',
-      data: auth_dict,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).done(response => {
-      if (response._csrf) {
-            this.auth_token = response._csrf;
-            return { status: "success", message: "Data source is working", title: "Success" };
-      }
+      data: x,
+      headers: { 'Content-Type': 'application/json' }
+    }).then(response => {
+      let pResp = processAuthResponse(response);
+      if(pResp != null){
+         this.authToken = pResp.token;
+         this.authTokenExpire = pResp.expire;
+         return { status: "success", message: "Data source is working", title: "Success" };
+      }else
+         return { status: "failure", message: "Unable to reach keystone server", title: "Failure"};
     });
   }
 
   testDatasource() {
-    var x = this.set_auth_token();
-    return x;
+    return this.setAuthToken();
   }
 
   annotationQuery(options) {
@@ -112,7 +117,7 @@ export class GenericDatasource {
     req_obj.where = [[{"name":"name","value":"STAT","op":7}]];
     var api_endpoint = "/api/qe/table/column/values";
 
-    return this.set_auth_token().then(x => {
+    return this.setAuthToken().then(x => {
         if (this.metrics)
           return this.metrics;
         return this.backendSrv.datasourceRequest({
@@ -120,7 +125,7 @@ export class GenericDatasource {
         data: req_obj,
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
-                    'X-CSRF-Token': this.auth_token
+                    'X-CSRF-Token': this.authToken
                 }
       }).then(this.mapToTextValue).then(y=> {
         this.metrics = y;
@@ -137,11 +142,11 @@ export class GenericDatasource {
 
   getpselects(table_name){
     var api_endpoint = "/api/qe/table/schema/"+table_name;
-     return this.set_auth_token().then(x => {
+     return this.setAuthToken().then(x => {
         return this.backendSrv.datasourceRequest({
         url: this.url + api_endpoint,
         method: 'GET',
-        headers: { 'X-CSRF-Token': this.auth_token }
+        headers: { 'X-CSRF-Token': this.authToken }
       }).then(this.mapToValue);
     });
   }

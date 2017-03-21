@@ -5,9 +5,9 @@ class GenericConfigCtrl {
   constructor($scope){
     this.current.url = this.current.url || "https://bakesville-vm22:8143";
     this.current.jsonData = this.current.jsonData || {};
-    this.current.jsonData.keystone_url = this.current.jsonData.keystone_url || "http://bakesville-vm22:35357/v2.0/tokens";
-    this.current.jsonData.can_password = this.current.jsonData.can_password || "contrail123";
-    this.current.jsonData.can_username = this.current.jsonData.can_username || "admin";
+    this.current.jsonData.keystoneUrl = this.current.jsonData.keystoneUrl || "http://bakesville-vm22:35357/v2.0/tokens";
+    this.current.jsonData.canPassword = this.current.jsonData.canPassword || "contrail123";
+    this.current.jsonData.canUsername = this.current.jsonData.canUsername || "admin";
   }
 }
 
