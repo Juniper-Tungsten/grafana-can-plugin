@@ -9,15 +9,18 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.scope = $scope;
     this.uiSegmentSrv = uiSegmentSrv;
     this.target.target = this.target.target || 'select metric';
-    this.target.type = this.target.type || 'timeserie';
+    //TODO: support the table view.
+    //TODO: support rawQuery
+    this.target.type = this.target.type || 'timeseries';
     this.target.pselect = this.target.pselect || false;
     this.target.selected = this.target.selected || [];
 }
 
   getOptions() {
-    return this.datasource.metricFindQuery(this.target)
+    return this.datasource.findAllTables(this.target)
       .then(this.uiSegmentSrv.transformToSegments(false));
       // Options have to be transformed by uiSegmentSrv to be usable by metric-segment-model directive
+      // return this.datasource.findAllTables(this.target);
   }
 
   toggleEditorMode() {

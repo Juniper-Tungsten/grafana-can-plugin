@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {getAuthDict, processAuthResponse} from './common';
+import {Common} from './common';
 export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
@@ -62,22 +62,21 @@ export class GenericDatasource {
   setAuthToken(){
     //TODO: make sure setAuthToken renews the token when it expires;
     if(this.authToken != null)
-      return this.q.when({data: []});
-    let x = getAuthDict(this.canUsername,this.canPassword);
-    console.log(x);
+      return this.q.when({data: [],token: this.authToken});
+    let auth_dict = Common.getAuthDict(this.canUsername,this.canPassword);
     return this.backendSrv.datasourceRequest({
       url: this.keystoneUrl,
       method: 'POST',
-      data: x,
+      data: auth_dict,
       headers: { 'Content-Type': 'application/json' }
     }).then(response => {
-      let pResp = processAuthResponse(response);
+      let pResp = Common.processAuthResponse(response);
       if(pResp != null){
          this.authToken = pResp.token;
          this.authTokenExpire = pResp.expire;
-         return { status: "success", message: "Data source is working", title: "Success" };
+         return { token: this.authToken, status: "success", message: "Data source is working", title: "Success",  };
       }else
-         return { status: "failure", message: "Unable to reach keystone server", title: "Failure"};
+         return { token: this.authToken, status: "failure", message: "Unable to reach keystone server", title: "Failure"};
     });
   }
 
@@ -108,34 +107,49 @@ export class GenericDatasource {
     });
   }
 
-  metricFindQuery(options) {
-    var req_obj={};
-    req_obj.toTimeUTC = new Date().getTime();
-    req_obj.fromTimeUTC = req_obj.toTimeUTC - 600000;
-    req_obj.select = ["name", "fields.value"];
-    req_obj.table_name = "StatTable.FieldNames.fields";
-    req_obj.where = [[{"name":"name","value":"STAT","op":7}]];
-    var api_endpoint = "/api/qe/table/column/values";
-
-    return this.setAuthToken().then(x => {
-        if (this.metrics)
-          return this.metrics;
-        return this.backendSrv.datasourceRequest({
-        url: this.url + api_endpoint,
+  analyticsQuery(params){
+    let req_obj = {};
+    req_obj.end_time = params.to || "now";//new Date().getTime();
+    req_obj.start_time = params.start || "now-10m";//req_obj.end_time - 600000;
+    req_obj.select_fields = params.select || ["name", "fields.value"];
+    req_obj.table = params.table || "StatTable.FieldNames.fields";
+    req_obj.where = params.where || [[{"name":"name","value":"STAT","op":7}]];
+    let headers = params.headers || {};
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    headers['X-Auth-Token'] = headers['X-Auth-Token'] || params.token;
+    let api_endpoint = params.url;
+    let method = params.method || 'POST';
+    return this.setAuthToken().then(x=>{
+      let call_obj = {
+        url: api_endpoint,
         data: req_obj,
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-                    'X-CSRF-Token': this.authToken
-                }
-      }).then(this.mapToTextValue).then(y=> {
-        this.metrics = y;
-        return y;
-      });
+        method: method,
+        headers: headers
+      };
+      call_obj.headers['X-Auth-Token'] = call_obj.headers['X-Auth-Token'] || x.token;
+      return this.backendSrv.datasourceRequest(call_obj);
     });
+  }
+  findAllTables(options) {
+    //TODO: build optimization to cache tables
+    var param_obj={};
+    param_obj.url = this.url +Common.endpoints.query;
+    param_obj.table = "StatTable.FieldNames.fields";
+    param_obj.select = ["name", "fields.value"];
+    param_obj.where = [[{"name":"name","value":"STAT","op":7}]];
+    param_obj.start = "now-10m";//req_obj.end_time - 600000;
+    param_obj.to ="now";//new Date().getTime();
+
+    return this.analyticsQuery(param_obj)
+           .then(this.mapToTextValue)
+          //  .then(y => {
+          //     this.metrics = y;
+          //     return y;
+          //   });
   }
 
   mapToTextValue(result) {
-    return _.map(result.data.data, (d, i) => {
+    return _.map(result.data.value, (d, i) => {
       return { text: d["fields.value"], value: i};
     });
   }

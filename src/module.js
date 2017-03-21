@@ -3,7 +3,7 @@ import {GenericDatasourceQueryCtrl} from './query_ctrl';
 
 class GenericConfigCtrl {
   constructor($scope){
-    this.current.url = this.current.url || "https://bakesville-vm22:8143";
+    this.current.url = this.current.url || "http://bakesville-vm22:8081";
     this.current.jsonData = this.current.jsonData || {};
     this.current.jsonData.keystoneUrl = this.current.jsonData.keystoneUrl || "http://bakesville-vm22:35357/v2.0/tokens";
     this.current.jsonData.canPassword = this.current.jsonData.canPassword || "contrail123";
