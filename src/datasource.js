@@ -109,7 +109,7 @@ export class GenericDatasource {
 
   analyticsQuery(params){
     let req_obj = {};
-    req_obj.end_time = params.to || "now";//new Date().getTime();
+    req_obj.end_time = params.end || "now";//new Date().getTime();
     req_obj.start_time = params.start || "now-10m";//req_obj.end_time - 600000;
     req_obj.select_fields = params.select || ["name", "fields.value"];
     req_obj.table = params.table || "StatTable.FieldNames.fields";
@@ -130,15 +130,16 @@ export class GenericDatasource {
       return this.backendSrv.datasourceRequest(call_obj);
     });
   }
-  findAllTables(options) {
+  
+  findAllTables(param) {
     //TODO: build optimization to cache tables
     var param_obj={};
     param_obj.url = this.url +Common.endpoints.query;
     param_obj.table = "StatTable.FieldNames.fields";
     param_obj.select = ["name", "fields.value"];
     param_obj.where = [[{"name":"name","value":"STAT","op":7}]];
-    param_obj.start = "now-10m";//req_obj.end_time - 600000;
-    param_obj.to ="now";//new Date().getTime();
+    param_obj.start = param.start || "now-10m";//req_obj.end_time - 600000;
+    param_obj.end = param.end || "now";//new Date().getTime();
 
     return this.analyticsQuery(param_obj)
            .then(this.mapToTextValue)

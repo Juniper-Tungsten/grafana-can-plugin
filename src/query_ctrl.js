@@ -1,5 +1,6 @@
 import {QueryCtrl} from 'app/plugins/sdk';
 import './css/query-editor.css!'
+import {Common} from './common'
 
 export class GenericDatasourceQueryCtrl extends QueryCtrl {
 
@@ -16,8 +17,11 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.selected = this.target.selected || [];
 }
 
-  getOptions() {
-    return this.datasource.findAllTables(this.target)
+  getTables() {
+    let param ={};
+    param.start = Common.toDate(this.panelCtrl.dashboard.time.from);
+    param.end = Common.toDate(this.panelCtrl.dashboard.time.end);
+    return this.datasource.findAllTables(param)
       .then(this.uiSegmentSrv.transformToSegments(false));
       // Options have to be transformed by uiSegmentSrv to be usable by metric-segment-model directive
       // return this.datasource.findAllTables(this.target);
@@ -27,7 +31,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.rawQuery = !this.target.rawQuery;
   }
 
-  onChangeInternal() {
+  onChangeTable() {
     var selected_table = this.target.target;
     if(!selected_table.includes('select metric')){
       this.datasource.getpselects(selected_table).then(pselect=>{
@@ -37,7 +41,6 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
   }
   cSelect(){
     this.panelCtrl.refresh(); // Asks the panel to refresh data.
-    
   }
 }
 
