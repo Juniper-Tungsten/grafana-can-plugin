@@ -44,5 +44,5 @@ Common.processResultData = function(result){
                 newData.push([v/100000,time/1000]);
         });
     });
-    return {'target':result.config.data.table,'datapoints':newData};
+    return {'target':result.config.data.select_fields[1],'datapoints':newData};
 }

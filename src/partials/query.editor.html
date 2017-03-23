@@ -13,28 +13,37 @@
     </div>-->
 
     <div ng-if="!ctrl.target.rawQuery">
-      <div class="gf-form">
+      <div class="gf-form-select-wrapper max-width-21">
         <metric-segment-model property="ctrl.target.table" get-options="ctrl.getTables()" on-change="ctrl.onChangeTable()"
-          css-class="tight-form-item-xxlarge"></metric-segment-model>
+          css-class="gf-form-input"></metric-segment-model>
       </div>
     </div>
-    <div class="gf-form" ng-if="ctrl.target.pCols">
-      <select class="tight-form-item-xxlarge" ng-change="ctrl.colSelect()" ng-model="ctrl.target.selCol"  ng-options="x.text for x in ctrl.target.pCols"></select>
+    <div class="gf-form-select-wrapper max-width-21" ng-if="ctrl.target.pCols">
+      <select class="gf-form-input" ng-change="ctrl.colSelect()" ng-model="ctrl.target.selCol"  ng-options="x.text for x in ctrl.target.pCols"></select>
     </div>
-    <label> Advanced:
-      <input type="checkbox" ng-model="ctrl.target.advanced">
-    </label>
+    <div class="gf-form">
+      <gf-from-switch class="gf-form" label="Advanced">
+        <label class="gf-form-label"> Advanced </label>
+        <div class="gf-form-switch">
+          <input id="advancedCheck" type="checkbox" ng-model="ctrl.target.advanced">
+          <label for="advancedCheck" data-on="Yes" data-off="No"></label>
+        </div>
+      </gf-from-switch>
+    </div>
   </div>
-  <div class="gf-form" ng-if="ctrl.target.advanced">
+  <div class="gf-form-group" ng-if="ctrl.target.advanced">
     <div>
-      <label>Filter</label>
+      <h6>Filter</h6>
       <div class="gf-form-inline">
-        <input type="text" ng-model="ctrl.target.selCol.text" class="tight-form-item-xxlarge" readonly>
-        <select ng-model="ctrl.target.selFilterOp"  ng-options="x for x in ctrl.getOperators()" class="tight-form-item-xxlarge"></select>
-        <input type="number" ng-model="ctrl.target.filterVal" class="tight-form-item-xxlarge"> 
+          <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.target.selCol.text" readonly>
+          <div class="gf-form-select-wrapper max-width-21">
+            <select class="gf-form-input" ng-model="ctrl.target.selFilterOp"  ng-options="x for x in ctrl.getOperators()"></select>
+          </div>
+          <input class="gf-form-input max-width-21" type="number" ng-model="ctrl.target.filterVal" > 
       </div>
+    </div>
     <div>
-      <label>Where</label>
+      <h6>Where</h6>
       <div class="gf-form-inline">
       </div>
     </div>
