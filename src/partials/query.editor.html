@@ -18,8 +18,8 @@
           css-class="tight-form-item-xxlarge"></metric-segment-model>
       </div>
     </div>
-    <div class="gf-form" ng-if="ctrl.target.pselect">
-      <select ng-change="ctrl.cSelect()" ng-model="ctrl.target.selected"  ng-options="x.text for x in ctrl.target.pselect"></select>
+    <div class="gf-form" ng-if="ctrl.target.pCols">
+      <select ng-change="ctrl.colSelect()" ng-model="ctrl.target.selCol"  ng-options="x.text for x in ctrl.target.pCols"></select>
     </div>
   </div>
 </query-editor-row>

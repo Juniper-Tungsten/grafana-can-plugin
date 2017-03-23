@@ -138,9 +138,9 @@ export class GenericDatasource {
     });
   }
 
-  getpselects(table_name){
+  getColumns(tableName){
     return this.analyticsQuery({
-      url: this.url+Common.endpoints.table+'/'+table_name+Common.endpoints.tableSchema,
+      url: this.url+Common.endpoints.table+'/'+tableName+Common.endpoints.tableSchema,
       method: 'GET'  
       }).then(this.mapToValue);
   }
@@ -161,7 +161,8 @@ export class GenericDatasource {
   buildQueryParameters(options) {
     //TODO: filter hidden queries.
     options.targets = _.filter(options.targets, target => {
-      return target.table !== Common.strings.selectTable && target.selected.text !== Common.strings.selectColumn;
+      return target.table !== Common.strings.selectTable && 
+             target.selCol.text !== Common.strings.selectColumn;
     });
     var targets = _.map(options.targets, target => {
 
@@ -179,7 +180,7 @@ export class GenericDatasource {
           "table":this.templateSrv.replace(target.table),
           "start_time":from_time,
           "end_time":to_time,
-          "select_fields":["T",target.selected.text],
+          "select_fields":["T",target.selCol.text],
           "where": [[{"name":"name","value":"","op":7}]],
           // "time_granularity":2,
           // "table_type":"STAT",

@@ -13,8 +13,8 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     //TODO: support the table view.
     //TODO: support rawQuery
     this.target.type = this.target.type || 'timeseries';
-    this.target.pselect = this.target.pselect || false;
-    this.target.selected = this.target.selected || null;
+    this.target.pCols = this.target.pCols || false;
+    this.target.selCol = this.target.selCol || null;
 }
 
   getTables() {
@@ -33,17 +33,17 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
   }
 
   onChangeTable() {
-    var selected_table = this.target.table;
-    if(!selected_table.includes('select metric')){
-      this.datasource.getpselects(selected_table).then(pselect=>{
-        this.target.pselect = pselect;
-        this.target.selected= pselect[0];
+    var selectedTable = this.target.table;
+    if(!selectedTable.includes('select metric')){
+      this.datasource.getColumns(selectedTable).then(pCols=>{
+        this.target.pCols = pCols;
+        this.target.selCol= pCols[0];
       });
     }
   }
 
-  cSelect(){
-    if(this.target.selected && this.target.selected.text !== Common.strings.selectColumn)
+  colSelect(){
+    if(this.target.selCol && this.target.selCol.text !== Common.strings.selectColumn)
       this.panelCtrl.refresh(); // Asks the panel to refresh data.
   }
 }
