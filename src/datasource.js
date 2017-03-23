@@ -146,10 +146,15 @@ export class GenericDatasource {
   }
 
   mapToValue(schemaResult){
-    let retVal = _.map(schemaResult.data.columns, (d,i) => {
-      return {text: d.name, type: d.datatype, value: i};
+    let retVal = [];
+    schemaResult.data.columns = _.filter(schemaResult.data.columns, col => {
+      return Common.numTypes.indexOf(col.datatype.toLowerCase()) > -1 &&
+             Common.filteredCol.indexOf(col.name.toLowerCase()) < 0
     });
-    retVal.unshift({text:Common.strings.selectColumn});
+    retVal[0]={text:Common.strings.selectColumn};
+    _.each(schemaResult.data.columns, (d,i) => {
+        retVal[i+1] = {text: d.name, type: d.datatype, value: i};
+    });
     return retVal;
   }
 

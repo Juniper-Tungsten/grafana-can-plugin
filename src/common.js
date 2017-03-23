@@ -12,6 +12,8 @@ Common.strings ={
     'selectTable': 'Select Table',
     'selectColumn': 'Select Field'
 }
+Common.filteredCol = ['t','t=','class(t)','class(t=)'];
+Common.numTypes = ['int','long'];
 Common.toDate = function(someDate){
     if(someDate !== null && typeof someDate === 'object'){
         let timeString = someDate._d || someDate._i;
