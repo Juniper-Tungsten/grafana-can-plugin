@@ -15,6 +15,9 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.type = this.target.type || 'timeseries';
     this.target.pCols = this.target.pCols || false;
     this.target.selCol = this.target.selCol || null;
+    this.target.advanced = this.target.advanced || false;
+    this.target.selFilterOp = this.target.selFilterOp || null;
+    this.target.filterVal = this.target.filterVal || null;
 }
 
   getTables() {
@@ -45,6 +48,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
   colSelect(){
     if(this.target.selCol && this.target.selCol.text !== Common.strings.selectColumn)
       this.panelCtrl.refresh(); // Asks the panel to refresh data.
+  }
+
+  getOperators(){
+    return ['=','<'];
   }
 }
 

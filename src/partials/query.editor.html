@@ -19,7 +19,24 @@
       </div>
     </div>
     <div class="gf-form" ng-if="ctrl.target.pCols">
-      <select ng-change="ctrl.colSelect()" ng-model="ctrl.target.selCol"  ng-options="x.text for x in ctrl.target.pCols"></select>
+      <select class="tight-form-item-xxlarge" ng-change="ctrl.colSelect()" ng-model="ctrl.target.selCol"  ng-options="x.text for x in ctrl.target.pCols"></select>
     </div>
+    <label> Advanced:
+      <input type="checkbox" ng-model="ctrl.target.advanced">
+    </label>
   </div>
+  <div class="gf-form" ng-if="ctrl.target.advanced">
+    <div>
+      <label>Filter</label>
+      <div class="gf-form-inline">
+        <input type="text" ng-model="ctrl.target.selCol.text" class="tight-form-item-xxlarge" readonly>
+        <select ng-model="ctrl.target.selFilterOp"  ng-options="x for x in ctrl.getOperators()" class="tight-form-item-xxlarge"></select>
+        <input type="number" ng-model="ctrl.target.filterVal" class="tight-form-item-xxlarge"> 
+      </div>
+    <div>
+      <label>Where</label>
+      <div class="gf-form-inline">
+      </div>
+    </div>
+  </div> 
 </query-editor-row>
