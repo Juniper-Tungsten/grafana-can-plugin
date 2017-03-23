@@ -5,16 +5,16 @@
     </div>-->
 
     <!--<div class="gf-form" ng-if="ctrl.target.rawQuery">
-      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.table" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
     </div>-->
 
     <!--<div class="gf-form" ng-if="!ctrl.target.rawQuery">
-      <select ng-change="ctrl.onChangeInternal()" ng-model="ctrl.target.target"  ng-options="x.text for x in ctrl.getOptions()"></select>
+      <select ng-change="ctrl.onChangeInternal()" ng-model="ctrl.target.table"  ng-options="x.text for x in ctrl.getOptions()"></select>
     </div>-->
 
     <div ng-if="!ctrl.target.rawQuery">
       <div class="gf-form">
-        <metric-segment-model property="ctrl.target.target" get-options="ctrl.getTables()" on-change="ctrl.onChangeTable()"
+        <metric-segment-model property="ctrl.target.table" get-options="ctrl.getTables()" on-change="ctrl.onChangeTable()"
           css-class="tight-form-item-xxlarge"></metric-segment-model>
       </div>
     </div>

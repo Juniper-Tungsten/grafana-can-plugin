@@ -21,42 +21,23 @@ export class GenericDatasource {
   }
 
   query(options) {
-    return this.setAuthToken().then(x=>{
       var query_array = this.buildQueryParameters(options);
       if( !query_array )
         return this.q.when({data: []});
-      function data_process(result){
-        var newData = [];
-        _.each(result.data.data, (d,i)=>{
-          var time = d["T"];
-            _.each(d, (v,k)=>{
-              if(k != "T" && k != "CLASS(T)")
-                  newData.push([v/100000,time/1000]);
-            });
-        });
-        return {'target':result.data.queryJSON.table,'datapoints':newData};
-        
-        
-      }
       var promise_array=[];
       for(var i in query_array){
-          var p = this.backendSrv.datasourceRequest({
-          url: this.url + '/api/qe/query',
-          data: query_array[i],
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json',
-                      'X-CSRF-Token': this.authToken
-                   }
-          });
+          let param_obj = {};
+          param_obj.url = this.url + Common.endpoints.query;
+          param_obj.data = query_array[i];
+          var p = this.analyticsQuery(param_obj);
           promise_array[i]=p;
       }
       return this.q.all(promise_array).then(allData =>{
         var return_obj={data:[]};
         for(var i in allData)
-          return_obj.data[i] = data_process(allData[i]);
+          return_obj.data[i] = Common.processResultData(allData[i]);
         return return_obj;
       });
-    });    
   }
 
   setAuthToken(){
@@ -108,24 +89,30 @@ export class GenericDatasource {
   }
 
   analyticsQuery(params){
-    let req_obj = {};
-    req_obj.end_time = params.end || "now";//new Date().getTime();
-    req_obj.start_time = params.start || "now-10m";//req_obj.end_time - 600000;
-    req_obj.select_fields = params.select || ["name", "fields.value"];
-    req_obj.table = params.table || "StatTable.FieldNames.fields";
-    req_obj.where = params.where || [[{"name":"name","value":"STAT","op":7}]];
-    let headers = params.headers || {};
-    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
-    headers['X-Auth-Token'] = headers['X-Auth-Token'] || params.token;
     let api_endpoint = params.url;
     let method = params.method || 'POST';
+    let headers = params.headers || {};
+    let req_obj = {};
+    if(method === 'POST'){
+      if(!params.data){
+        req_obj.end_time = params.end || "now";//new Date().getTime();
+        req_obj.start_time = params.start || "now-10m";//req_obj.end_time - 600000;
+        req_obj.select_fields = params.select || ["name", "fields.value"];
+        req_obj.table = params.table || "StatTable.FieldNames.fields";
+        req_obj.where = params.where || [[{"name":"name","value":"STAT","op":7}]];
+      }else
+        req_obj = params.data;
+      headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+    }
+    headers['X-Auth-Token'] = headers['X-Auth-Token'] || params.token;
     return this.setAuthToken().then(x=>{
       let call_obj = {
         url: api_endpoint,
-        data: req_obj,
         method: method,
         headers: headers
       };
+      if(method === 'POST')
+        call_obj.data = req_obj;
       call_obj.headers['X-Auth-Token'] = call_obj.headers['X-Auth-Token'] || x.token;
       return this.backendSrv.datasourceRequest(call_obj);
     });
@@ -143,10 +130,6 @@ export class GenericDatasource {
 
     return this.analyticsQuery(param_obj)
            .then(this.mapToTextValue)
-          //  .then(y => {
-          //     this.metrics = y;
-          //     return y;
-          //   });
   }
 
   mapToTextValue(result) {
@@ -156,55 +139,54 @@ export class GenericDatasource {
   }
 
   getpselects(table_name){
-    var api_endpoint = "/api/qe/table/schema/"+table_name;
-     return this.setAuthToken().then(x => {
-        return this.backendSrv.datasourceRequest({
-        url: this.url + api_endpoint,
-        method: 'GET',
-        headers: { 'X-CSRF-Token': this.authToken }
+    return this.analyticsQuery({
+      url: this.url+Common.endpoints.table+'/'+table_name+Common.endpoints.tableSchema,
+      method: 'GET'  
       }).then(this.mapToValue);
-    });
   }
 
-  mapToValue(x){
-    return _.map(x.data.columns, (d,i) => {
+  mapToValue(schemaResult){
+    let retVal = _.map(schemaResult.data.columns, (d,i) => {
       return {text: d.name, type: d.datatype, value: i};
     });
+    retVal.unshift({text:Common.strings.selectColumn});
+    return retVal;
   }
 
   buildQueryParameters(options) {
-    //remove placeholder targets
+    //TODO: filter hidden queries.
     options.targets = _.filter(options.targets, target => {
-      return target.target !== 'select metric';
+      return target.table !== Common.strings.selectTable && target.selected.text !== Common.strings.selectColumn;
     });
-
     var targets = _.map(options.targets, target => {
-      var to_time = options.range.to._i ;
-      var from_time = options.range.from._i;
-      to_time = to_time ||  new Date().getTime();
-      from_time = from_time || to_time - 60000000;
+
+      var to_time = Common.toDate(options.range.raw.to);
+      var from_time = Common.toDate(options.range.raw.from);
+      // to_time = to_time ||  new Date().getTime();
+      // from_time = from_time || to_time - 60000000;
       to_time = Math.round(to_time);
       from_time = Math.round(from_time);
       return {
         
-        autoSort:true,
-        "async":false,
-        "formModelAttrs":{
-          "table_name":this.templateSrv.replace(target.target),
-          "table_type":"STAT",
-          "query_prefix":"stat",
-          "from_time":from_time,
-          "from_time_utc":from_time,
-          "to_time":to_time,
-          "to_time_utc":to_time,
-          "select":"T,"+target.selected.text,
-          "time_granularity":2,
-          "time_granularity_unit":"mins",
+        // autoSort:true,
+        // "async":false,
+        // "formModelAttrs":{
+          "table":this.templateSrv.replace(target.table),
+          "start_time":from_time,
+          "end_time":to_time,
+          "select_fields":["T",target.selected.text],
+          "where": [[{"name":"name","value":"","op":7}]],
+          // "time_granularity":2,
+          // "table_type":"STAT",
+          // "query_prefix":"stat",
+          // "start_time_utc":from_time,
+          // "end_time_utc":to_time,
+          // "time_granularity_unit":"mins",
           "limit":options.maxDataPoints
-        },
-        chunk: 1,
-        chunkSize: 10000,
-        hide: target.hide
+        // },
+        // chunk: 1,
+        // chunkSize: 10000,
+        // hide: target.hide
       };
     });
 

@@ -1,16 +1,23 @@
+import _ from "lodash";
 import {datemath} from './datemath-parser';
 export {Common};
 class Common{}
 Common.endpoints ={
         'query': '/analytics/query',
-        'tables':'/analytics/tables'
+        'tables':'/analytics/tables',
+        'table': '/analytics/table',
+        'tableSchema': '/schema'       
+}
+Common.strings ={
+    'selectTable': 'Select Table',
+    'selectColumn': 'Select Field'
 }
 Common.toDate = function(someDate){
     if(someDate !== null && typeof someDate === 'object'){
         let timeString = someDate._d || someDate._i;
-        return Date.parse(timeString);
+        return Date.parse(timeString)*1000;
     }else if(someDate !== null && typeof someDate === 'string'){
-        return datemath().parse(someDate);
+        return datemath().parse(someDate) *1000;
     }
 }
 Common.getAuthDict = function(user, pass, tenant='admin'){
@@ -25,4 +32,15 @@ Common.processAuthResponse = function(resp){
                 expire:response.access.token.expires
                 };
     return null;
+}
+Common.processResultData = function(result){
+    var newData = [];
+    _.each(result.data.value, (d,i)=>{
+        var time = d["T"];
+        _.each(d, (v,k)=>{
+            if(k != "T" && k != "CLASS(T)")
+                newData.push([v/100000,time/1000]);
+        });
+    });
+    return {'target':result.config.data.table,'datapoints':newData};
 }
