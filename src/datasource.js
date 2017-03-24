@@ -169,40 +169,31 @@ export class GenericDatasource {
       return target.table !== Common.strings.selectTable && 
              target.selCol.text !== Common.strings.selectColumn;
     });
-    var targets = _.map(options.targets, target => {
-
+    let retVal = [];
+    _.each(options.targets, (target, i) => {
+      target = Common.filterQueryFields(target);
+      if(!Common.isValidQuery(target))
+        return false;
+      target = Common.transform(target);
       var to_time = Common.toDate(options.range.raw.to);
       var from_time = Common.toDate(options.range.raw.from);
-      // to_time = to_time ||  new Date().getTime();
-      // from_time = from_time || to_time - 60000000;
       to_time = Math.round(to_time);
       from_time = Math.round(from_time);
-      return {
-        
-        // autoSort:true,
-        // "async":false,
-        // "formModelAttrs":{
+      let qObj = {
           "table":this.templateSrv.replace(target.table),
           "start_time":from_time,
           "end_time":to_time,
           "select_fields":["T",target.selCol.text],
-          "where": [[{"name":"name","value":"","op":7}]],
-          // "time_granularity":2,
-          // "table_type":"STAT",
-          // "query_prefix":"stat",
-          // "start_time_utc":from_time,
-          // "end_time_utc":to_time,
-          // "time_granularity_unit":"mins",
+          "where": target.where || [[{"name":"name","value":"","op":7}]],
           "limit":options.maxDataPoints
-        // },
-        // chunk: 1,
-        // chunkSize: 10000,
-        // hide: target.hide
       };
+      if(target.filter)
+        qObj.filter=target.filter;
+      retVal.push(qObj);
     });
 
     // options.targets = targets;
 
-    return targets;
+    return retVal;
   }
 }

@@ -14,7 +14,7 @@ Common.strings ={
 }
 Common.allOperators = ['EQUAL','NOT_EQUAL','IN_RANGE','NOT_IN_RANGE','LEQ','GEQ','PREFIX','REGEX_MATCH'];
 Common.filteredCol = ['t','t=','class(t)','class(t=)'];
-Common.numTypes = ['int','long'];
+Common.numTypes = ['int','long','percentiles','double','avg'];
 Common.toDate = function(someDate){
     if(someDate !== null && typeof someDate === 'object'){
         let timeString = someDate._d || someDate._i;
@@ -47,4 +47,53 @@ Common.processResultData = function(result){
         });
     });
     return {'target':result.config.data.select_fields[1],'datapoints':newData};
+}
+Common.filterQueryFields=function(targetObj){
+    let whereArray = [];
+    if(!targetObj.advanced){
+        targetObj.where = null;
+        targetObj.filter = null;
+    }else{
+        _.each(targetObj.whereArray, (andRowArray,i)=>{
+            let innerArray=[];
+            _.each(andRowArray, (andRow,j)=>{
+                if(andRow.op == null || andRow.name==null || andRow.value==null || (andRow.op && andRow.op.toLowerCase().indexOf('range')!==-1 && andRow.value2==null))
+                    return false;
+                innerArray.push(andRow);
+            });
+            if(innerArray.length===0)
+                return false;
+            whereArray.push(innerArray);
+        });
+        targetObj.where = whereArray.length === 0 ? null: whereArray;
+        let filterObj = targetObj.filterObj;
+        if(targetObj.selCol == null || filterObj.selFilterOp ==null || filterObj.filterVal == null && (filterObj.selFilterOp && filterObj.selFilterOp.toLowerCase().indexOf('range')!==-1 && filterObj.filterVal2==null))
+            targetObj.filter = null;
+    }
+    return targetObj;
+}
+Common.isValidQuery=function(targetObj){
+    if(targetObj.table == null || 
+       targetObj.selCol == null ||
+       targetObj.selCol.text == null)
+        return false;
+    return true;
+}
+Common.transform=function(targetObj){
+    if(targetObj.filter){
+        targetObj.filter={
+            name:targetObj.selCol,
+            value:targetObj.filter.filterVal,
+            value2:targetObj.filter.filterVal2,
+            op:targetObj.filter.selFilterOp
+        };
+    }
+    if(targetObj.where){
+        _.each(targetObj.where, (andRowArray,i)=>{
+            _.each(andRowArray, (andRow,j)=>{
+                targetObj.where[i][j].op = Common.allOperators.indexOf(targetObj.where[i][j].op)+1;
+            });
+        });
+    }
+    return targetObj;
 }

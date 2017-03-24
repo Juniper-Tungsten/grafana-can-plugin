@@ -47,7 +47,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
         this.target.pCols = result.filtered;
         this.target.pCols.unshift({text:Common.strings.selectColumn});
         this.target.allCols = result.unfiltered;
-        this.target.selCol= pCols[0];
+        this.target.selCol= this.target.pCols[0];
       });
     }
   }
