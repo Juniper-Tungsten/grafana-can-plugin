@@ -1,5 +1,5 @@
 <query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="false">
-  <div class="gf-form-inline">
+  <div class="gf-form-inline" ng-init="randomId=ctrl.getRandomId()">
     <!--<div class="gf-form max-width-8">
       <select class="gf-form-input" ng-model="ctrl.target.type" ng-options="ctrl.getTimeIntervals"></select>
     </div>-->
@@ -22,11 +22,12 @@
       <select class="gf-form-input" ng-change="ctrl.colSelect()" ng-model="ctrl.target.selCol"  ng-options="x.text for x in ctrl.target.pCols"></select>
     </div>
     <div class="gf-form">
+      <!--{{randomId=angular.element('this').closest('query-editor-row').attr('class');""}}-->
       <gf-from-switch class="gf-form" label="Advanced">
         <label class="gf-form-label"> Advanced </label>
         <div class="gf-form-switch">
-          <input id="advancedCheck" type="checkbox" ng-model="ctrl.target.advanced">
-          <label for="advancedCheck" data-on="Yes" data-off="No"></label>
+          <input id="{{randomId}}" type="checkbox" ng-model="ctrl.target.advanced">
+          <label for="{{randomId}}" data-on="Yes" data-off="No"></label>
         </div>
       </gf-from-switch>
     </div>
@@ -37,10 +38,10 @@
       <div class="gf-form-inline">
           <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.target.selCol.text" readonly>
           <div class="gf-form-select-wrapper max-width-8">
-            <select class="gf-form-input" ng-model="ctrl.target.selFilterOp" ng-options="x for x in ctrl.getOperators()" ng-init="ctrl.target.selFilterOp = ctrl.getOperators()[0]"></select>
+            <select class="gf-form-input" ng-model="ctrl.target.filterObj.selFilterOp" ng-options="x for x in ctrl.getOperators()" ng-init="ctrl.target.filterObj.selFilterOp = ctrl.getOperators()[0]"></select>
           </div>
-          <input class="gf-form-input max-width-8" type="number" ng-model="ctrl.target.filterVal" > 
-          <input class="gf-form-input max-width-8" type="number" ng-if="ctrl.target.selFilterOp.toLowerCase().indexOf('range') !== -1" ng-model="ctrl.target.filterVal2" > 
+          <input class="gf-form-input max-width-8" type="number" ng-model="ctrl.target.filterObj.filterVal" > 
+          <input class="gf-form-input max-width-8" type="number" ng-if="ctrl.target.filterObj.selFilterOp.toLowerCase().indexOf('range') !== -1" ng-model="ctrl.target.filterObj.filterVal2" > 
       </div>
     </div>
     <div class="gf-form-group">

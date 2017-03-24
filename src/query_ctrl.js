@@ -17,10 +17,12 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.selCol = this.target.selCol || null;
     this.target.allCols = this.target.allCols || null;
     this.target.advanced = this.target.advanced || false;
-    this.target.selFilterOp = this.target.selFilterOp || null;
-    this.target.filterVal = this.target.filterVal || null;
-    this.target.filterVal2 = this.target.filterVal2 || null;
+    this.target.filterObj = this.target.filterObj || {};
+    this.target.filterObj.selFilterOp = this.target.filterObj.selFilterOp || null;
+    this.target.filterObj.filterVal = this.target.filterObj.filterVal || null;
+    this.target.filterObj.filterVal2 = this.target.filterObj.filterVal2 || null;
     this.target.whereArray = this.target.whereArray || [[{name:'name',value:'',op:'prefix'}]];
+    this.randomId = this.randomId || 0;
 }
 
   getTables() {
@@ -77,6 +79,12 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
   }
   getAllCols(){
     return this.target.allCols;
+  }
+  getRandomId(){
+    // TODO: Solve this using the tabindex of the pointer a element up in the
+    // parent hierarchy.
+    this.randomId = "chechbox-id"+Math.floor(Math.random()*10000000);
+    return this.randomId;
   }
 }
 
