@@ -146,16 +146,21 @@ export class GenericDatasource {
   }
 
   mapToValue(schemaResult){
-    let retVal = [];
+    let filtered = [];
+    let unfiltered = [];
+    let allCols = schemaResult.data.columns;
+
     schemaResult.data.columns = _.filter(schemaResult.data.columns, col => {
       return Common.numTypes.indexOf(col.datatype.toLowerCase()) > -1 &&
              Common.filteredCol.indexOf(col.name.toLowerCase()) < 0
     });
-    retVal[0]={text:Common.strings.selectColumn};
     _.each(schemaResult.data.columns, (d,i) => {
-        retVal[i+1] = {text: d.name, type: d.datatype, value: i};
+        filtered[i] = {text: d.name, type: d.datatype, value: i};
     });
-    return retVal;
+    _.each(allCols, (d,i)=>{
+      unfiltered[i] = {text: d.name, type: d.datatype, value: i};
+    });
+    return {filtered: filtered, unfiltered:unfiltered};
   }
 
   buildQueryParameters(options) {

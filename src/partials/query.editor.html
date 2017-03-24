@@ -32,19 +32,41 @@
     </div>
   </div>
   <div class="gf-form-group" ng-if="ctrl.target.advanced">
-    <div>
-      <h6>Filter</h6>
+    <div class="gf-form-group">
+      <span class="gf-form-label width-7">Filter</span>
       <div class="gf-form-inline">
           <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.target.selCol.text" readonly>
-          <div class="gf-form-select-wrapper max-width-21">
-            <select class="gf-form-input" ng-model="ctrl.target.selFilterOp"  ng-options="x for x in ctrl.getOperators()"></select>
+          <div class="gf-form-select-wrapper max-width-8">
+            <select class="gf-form-input" ng-model="ctrl.target.selFilterOp" ng-options="x for x in ctrl.getOperators()" ng-init="ctrl.target.selFilterOp = ctrl.getOperators()[0]"></select>
           </div>
-          <input class="gf-form-input max-width-21" type="number" ng-model="ctrl.target.filterVal" > 
+          <input class="gf-form-input max-width-8" type="number" ng-model="ctrl.target.filterVal" > 
+          <input class="gf-form-input max-width-8" type="number" ng-if="ctrl.target.selFilterOp.toLowerCase().indexOf('range') !== -1" ng-model="ctrl.target.filterVal2" > 
       </div>
     </div>
-    <div>
-      <h6>Where</h6>
-      <div class="gf-form-inline">
+    <div class="gf-form-group">
+      <div class="gf-form">
+        <span class="gf-form-label width-7">Where</span>
+        <button class="gf-form-input max-width-10" id="addOrButton" type="button" ng-click="ctrl.addOrRow()">+ Add Row</button>
+      </div>
+      <div class="gf-form-group">
+        <div ng-repeat="orRow in ctrl.target.whereArray" class="gf-form-group">
+          <span class="gf-form-label width-4" ng-if="ctrl.target.whereArray.length>1 && $index > 0">OR</span>
+          <div ng-repeat="andRow in orRow" class="gf-form-inline">
+            <span class="gf-form-label width-5" class="gf-form" ng-if="orRow.length > 1 && $index >0">AND</span>
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" ng-model="andRow.name" ng-options="x.text  for x in ctrl.getAllCols()"></select>
+            </div>
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" ng-model="andRow.op" ng-options="x for x in ctrl.getOperators(andRow.name)" ng-init="andRow.op = ctrl.getOperators()[0]"></select>
+            </div>
+            <input class="gf-form-input max-width-8" type="text" ng-model="andRow.value" > 
+            <input class="gf-form-input max-width-8" type="text" ng-if="andRow.op.toLowerCase().indexOf('range') !== -1" ng-model="andRow.value2" > 
+            <div class="gf-form">
+              <button class="gf-form-input max-width-5" type="button" ng-click="ctrl.delAndRow($parent.$index, $index)">x</button>
+              <button class="gf-form-input max-width-5" type="button" ng-click="ctrl.addAndRow($parent.$index)">+</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div> 

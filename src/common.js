@@ -12,6 +12,7 @@ Common.strings ={
     'selectTable': 'Select Table',
     'selectColumn': 'Select Field'
 }
+Common.allOperators = ['EQUAL','NOT_EQUAL','IN_RANGE','NOT_IN_RANGE','LEQ','GEQ','PREFIX','REGEX_MATCH'];
 Common.filteredCol = ['t','t=','class(t)','class(t=)'];
 Common.numTypes = ['int','long'];
 Common.toDate = function(someDate){
@@ -36,6 +37,7 @@ Common.processAuthResponse = function(resp){
     return null;
 }
 Common.processResultData = function(result){
+    //TODO: normalize data here
     var newData = [];
     _.each(result.data.value, (d,i)=>{
         var time = d["T"];

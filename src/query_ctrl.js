@@ -15,9 +15,12 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.type = this.target.type || 'timeseries';
     this.target.pCols = this.target.pCols || false;
     this.target.selCol = this.target.selCol || null;
+    this.target.allCols = this.target.allCols || null;
     this.target.advanced = this.target.advanced || false;
     this.target.selFilterOp = this.target.selFilterOp || null;
     this.target.filterVal = this.target.filterVal || null;
+    this.target.filterVal2 = this.target.filterVal2 || null;
+    this.target.whereArray = this.target.whereArray || [[{name:'name',value:'',op:'prefix'}]];
 }
 
   getTables() {
@@ -38,8 +41,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
   onChangeTable() {
     var selectedTable = this.target.table;
     if(!selectedTable.includes('select metric')){
-      this.datasource.getColumns(selectedTable).then(pCols=>{
-        this.target.pCols = pCols;
+      this.datasource.getColumns(selectedTable).then(result=>{
+        this.target.pCols = result.filtered;
+        this.target.pCols.unshift({text:Common.strings.selectColumn});
+        this.target.allCols = result.unfiltered;
         this.target.selCol= pCols[0];
       });
     }
@@ -50,8 +55,28 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
       this.panelCtrl.refresh(); // Asks the panel to refresh data.
   }
 
-  getOperators(){
-    return ['=','<'];
+  getOperators(colName=null){
+    if(colName != null){
+      //TODO: filter operators based on col datatype
+      return Common.allOperators;
+    }
+    else
+      return Common.allOperators;
+  }
+
+  addOrRow(){
+    this.target.whereArray.push([{}]);
+  }
+  addAndRow(index){
+    this.target.whereArray[index].push({});
+  }
+  delAndRow(pIndex,index){
+    this.target.whereArray[pIndex].splice(index,1);
+    if(this.target.whereArray[pIndex].length == 0)
+      this.target.whereArray.splice(pIndex,1);
+  }
+  getAllCols(){
+    return this.target.allCols;
   }
 }
 
