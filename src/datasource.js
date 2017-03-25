@@ -180,8 +180,8 @@ export class GenericDatasource {
       if(!Common.isValidQuery(target))
         return false;
       target = Common.transform(target);
-      var to_time = Common.toDate(options.range.raw.to);
-      var from_time = Common.toDate(options.range.raw.from);
+      var to_time = Common.toDate(options.range.to);
+      var from_time = Common.toDate(options.range.from);
       to_time = Math.round(to_time);
       from_time = Math.round(from_time);
       let qObj = {
@@ -196,7 +196,7 @@ export class GenericDatasource {
         qObj.filter=target.filter;
       retVal.push(qObj);
     });
-
+    console.log(options);
     // options.targets = targets;
     return retVal;
   }
