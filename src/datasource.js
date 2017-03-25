@@ -155,10 +155,10 @@ export class GenericDatasource {
              Common.filteredCol.indexOf(col.name.toLowerCase()) < 0
     });
     _.each(schemaResult.data.columns, (d,i) => {
-        filtered[i] = {text: d.name, type: d.datatype, value: i};
+        filtered[i] = {text: d.name, type: d.datatype, value: i, index: d.index};
     });
     _.each(allCols, (d,i)=>{
-      unfiltered[i] = {text: d.name, type: d.datatype, value: i};
+      unfiltered[i] = {text: d.name, type: d.datatype, value: i, index: d.index};
     });
     return {filtered: filtered, unfiltered:unfiltered};
   }
@@ -193,7 +193,8 @@ export class GenericDatasource {
     });
 
     // options.targets = targets;
-
+    console.log(options)
+    console.log(retVal);
     return retVal;
   }
 }

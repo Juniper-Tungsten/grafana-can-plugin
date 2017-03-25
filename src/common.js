@@ -57,9 +57,21 @@ Common.filterQueryFields=function(targetObj){
         _.each(targetObj.whereArray, (andRowArray,i)=>{
             let innerArray=[];
             _.each(andRowArray, (andRow,j)=>{
-                if(andRow.op == null || andRow.name==null || andRow.value==null || (andRow.op && andRow.op.toLowerCase().indexOf('range')!==-1 && andRow.value2==null))
+                if(andRow.op == null ||
+                    andRow.name==null ||
+                    andRow.value==null ||
+                    andRow.value=="" || 
+                    (andRow.op && 
+                        andRow.op.toLowerCase().indexOf('range')!==-1 &&
+                        andRow.value2==null)
+                   )
                     return false;
-                innerArray.push(andRow);
+                innerArray.push({
+                    name: andRow.name,
+                    op: andRow.op,
+                    value: andRow.value,
+                    value2: andRow.value2
+                });
             });
             if(innerArray.length===0)
                 return false;
@@ -67,7 +79,14 @@ Common.filterQueryFields=function(targetObj){
         });
         targetObj.where = whereArray.length === 0 ? null: whereArray;
         let filterObj = targetObj.filterObj;
-        if(targetObj.selCol == null || filterObj.selFilterOp ==null || filterObj.filterVal == null && (filterObj.selFilterOp && filterObj.selFilterOp.toLowerCase().indexOf('range')!==-1 && filterObj.filterVal2==null))
+        targetObj.filter = filterObj;
+        if(targetObj.selCol == null ||
+            filterObj.selFilterOp ==null || 
+            filterObj.filterVal == null || 
+            filterObj.filterVal == "" ||
+            (filterObj.selFilterOp && 
+                filterObj.selFilterOp.toLowerCase().indexOf('range')!==-1 && 
+                filterObj.filterVal2==null))
             targetObj.filter = null;
     }
     return targetObj;
@@ -81,16 +100,18 @@ Common.isValidQuery=function(targetObj){
 }
 Common.transform=function(targetObj){
     if(targetObj.filter){
-        targetObj.filter={
-            name:targetObj.selCol,
+        targetObj.filter=[{
+            name:targetObj.selCol.text,
             value:targetObj.filter.filterVal,
-            value2:targetObj.filter.filterVal2,
-            op:targetObj.filter.selFilterOp
-        };
+            // value2:targetObj.filter.filterVal2,
+            op:Common.allOperators.indexOf(targetObj.filter.selFilterOp)+1
+        }];
+        
     }
     if(targetObj.where){
         _.each(targetObj.where, (andRowArray,i)=>{
             _.each(andRowArray, (andRow,j)=>{
+                targetObj.where[i][j].name = targetObj.where[i][j].name.text;
                 targetObj.where[i][j].op = Common.allOperators.indexOf(targetObj.where[i][j].op)+1;
             });
         });

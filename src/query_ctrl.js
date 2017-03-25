@@ -21,7 +21,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.filterObj.selFilterOp = this.target.filterObj.selFilterOp || null;
     this.target.filterObj.filterVal = this.target.filterObj.filterVal || null;
     this.target.filterObj.filterVal2 = this.target.filterObj.filterVal2 || null;
-    this.target.whereArray = this.target.whereArray || [[{name:'name',value:'',op:'prefix'}]];
+    this.target.whereArray = this.target.whereArray || [[{name:'name',value:null,op:'PREFIX'}]];
     this.randomId = this.randomId || 0;
 }
 
@@ -77,8 +77,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     if(this.target.whereArray[pIndex].length == 0)
       this.target.whereArray.splice(pIndex,1);
   }
-  getAllCols(){
-    return this.target.allCols;
+  getIndexCols(){
+    return _.filter(this.target.allCols, col => {
+      return col.index === true ;
+    });
   }
   getRandomId(){
     // TODO: Solve this using the tabindex of the pointer a element up in the
