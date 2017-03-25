@@ -81,6 +81,7 @@ Common.filterQueryFields=function(targetObj){
         let filterObj = targetObj.filterObj;
         targetObj.filter = filterObj;
         if(targetObj.selCol == null ||
+            targetObj.selCol === Common.strings.selectColumn ||
             filterObj.selFilterOp ==null || 
             filterObj.filterVal == null || 
             filterObj.filterVal == "" ||
@@ -94,14 +95,14 @@ Common.filterQueryFields=function(targetObj){
 Common.isValidQuery=function(targetObj){
     if(targetObj.table == null || 
        targetObj.selCol == null ||
-       targetObj.selCol.text == null)
+       targetObj.selCol === Common.strings.selectColumn)
         return false;
     return true;
 }
 Common.transform=function(targetObj){
     if(targetObj.filter){
         targetObj.filter=[{
-            name:targetObj.selCol.text,
+            name:targetObj.selCol,
             value:targetObj.filter.filterVal,
             // value2:targetObj.filter.filterVal2,
             op:Common.allOperators.indexOf(targetObj.filter.selFilterOp)+1
@@ -111,7 +112,7 @@ Common.transform=function(targetObj){
     if(targetObj.where){
         _.each(targetObj.where, (andRowArray,i)=>{
             _.each(andRowArray, (andRow,j)=>{
-                targetObj.where[i][j].name = targetObj.where[i][j].name.text;
+                targetObj.where[i][j].name = targetObj.where[i][j].name;
                 targetObj.where[i][j].op = Common.allOperators.indexOf(targetObj.where[i][j].op)+1;
             });
         });

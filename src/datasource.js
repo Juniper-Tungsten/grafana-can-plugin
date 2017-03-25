@@ -167,11 +167,12 @@ export class GenericDatasource {
   }
 
   buildQueryParameters(options) {
-    //TODO: filter hidden queries.
     options.targets = _.filter(options.targets, target => {
-      return target.table !== Common.strings.selectTable && 
-             target.selCol.text !== Common.strings.selectColumn && 
-             !target.hide;
+      return !target.hide &&
+             target.table &&
+             target.table !== Common.strings.selectTable && 
+             target.selCol &&
+             target.selCol !== Common.strings.selectColumn
     });
     let retVal = [];
     _.each(options.targets, (target, i) => {
@@ -187,7 +188,7 @@ export class GenericDatasource {
           "table":this.templateSrv.replace(target.table),
           "start_time":from_time,
           "end_time":to_time,
-          "select_fields":["T",target.selCol.text],
+          "select_fields":["T",target.selCol],
           "where": target.where || [[{"name":"name","value":"","op":7}]],
           "limit":options.maxDataPoints
       };
@@ -197,8 +198,6 @@ export class GenericDatasource {
     });
 
     // options.targets = targets;
-    console.log(options)
-    console.log(retVal);
     return retVal;
   }
 }

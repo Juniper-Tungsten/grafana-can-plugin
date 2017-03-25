@@ -35,6 +35,14 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
       // Options have to be transformed by uiSegmentSrv to be usable by metric-segment-model directive
       // return this.datasource.findAllTables(this.target);
   }
+  _getpCols(){
+    console.log(this.target.pCols);
+    return Promise.resolve(this.target.pCols);
+  }
+  getpCols(){
+    return this._getpCols().then(this.uiSegmentSrv.transformToSegments(false));
+    // return getpcol(this).then();
+  } 
 
   toggleEditorMode() {
     this.target.rawQuery = !this.target.rawQuery;
@@ -44,16 +52,21 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     var selectedTable = this.target.table;
     if(!selectedTable.includes('select metric')){
       this.datasource.getColumns(selectedTable).then(result=>{
-        this.target.pCols = result.filtered;
-        this.target.pCols.unshift({text:Common.strings.selectColumn});
+        this.target.pCols = _.map(result.filtered, (d,i)=>{
+            return d.text;             
+        });
+        this.target.pCols.unshift(Common.strings.selectColumn);
+        // this.target.pCols.unshift({text:Common.strings.selectColumn});
         this.target.allCols = result.unfiltered;
-        this.target.selCol= this.target.pCols[0];
       });
     }
   }
 
   colSelect(){
-    if(this.target.selCol && this.target.selCol.text !== Common.strings.selectColumn)
+    // this.target.selCol = _.find(this.target.pCols, (obj)=>{
+    //   return obj.text === this.target.viewSelCol;
+    // });
+    if(this.target.selCol)
       this.panelCtrl.refresh(); // Asks the panel to refresh data.
   }
 
@@ -78,9 +91,12 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
       this.target.whereArray.splice(pIndex,1);
   }
   getIndexCols(){
-    return _.filter(this.target.allCols, col => {
-      return col.index === true ;
+    let filteredIndex = [];
+    _.each(this.target.allCols, (d,i) => {
+      if(d.index === true)
+        filteredIndex.push(d.text);
     });
+    return filteredIndex;
   }
   getRandomId(){
     // TODO: Solve this using the tabindex of the pointer a element up in the
