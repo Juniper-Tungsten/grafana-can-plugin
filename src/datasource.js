@@ -40,11 +40,10 @@ export class GenericDatasource {
       });
   }
 
-  setAuthToken(){
-    //TODO: make sure setAuthToken renews the token when it expires;
-    if(this.authToken != null)
-      return this.q.when({data: [],token: this.authToken});
-    let auth_dict = Common.getAuthDict(this.canUsername,this.canPassword);
+  setAuthToken(forceRenew=false){
+    if(!forceRenew && this.authToken != null && (this.authTokenExpire - Date.now())/1000 >0 )
+      return this.q.when({token: this.authToken});
+    let auth_dict = Common.getAuthDict(this.canUsername, this.canPassword);
     return this.backendSrv.datasourceRequest({
       url: this.keystoneUrl,
       method: 'POST',
@@ -54,15 +53,19 @@ export class GenericDatasource {
       let pResp = Common.processAuthResponse(response);
       if(pResp != null){
          this.authToken = pResp.token;
-         this.authTokenExpire = pResp.expire;
-         return { token: this.authToken, status: "success", message: "Data source is working", title: "Success",  };
+         this.authTokenExpire = Date.parse(pResp.expire);
+         return {token: this.authToken};
       }else
-         return { token: this.authToken, status: "failure", message: "Unable to reach keystone server", title: "Failure"};
+         return {token: null};
     });
   }
 
   testDatasource() {
-    return this.setAuthToken();
+    return this.setAuthToken().then(resp=>{
+      if(resp.token)
+        return {status: "success", message: "Data source is working", title: "Success"};
+      return {status: "failure", message: "Unable to reach keystone server", title: "Failure"};
+    });
   }
 
   annotationQuery(options) {

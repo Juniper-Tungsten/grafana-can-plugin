@@ -30,7 +30,7 @@ Common.getAuthDict = function(user, pass, tenant='admin'){
 }
 Common.processAuthResponse = function(resp){
     let response = resp.data;
-    if(response.access != null)
+    if(resp.status === 200 && response.access != null)
         return {token:response.access.token.id,
                 expire:response.access.token.expires
                 };
@@ -43,7 +43,7 @@ Common.processResultData = function(result){
         var time = d["T"];
         _.each(d, (v,k)=>{
             if(k != "T" && k != "CLASS(T)")
-                newData.push([v/100000,time/1000]);
+                newData.push([v,time/1000]);
         });
     });
     return {'target':result.config.data.select_fields[1],'datapoints':newData};
