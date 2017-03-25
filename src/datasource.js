@@ -170,7 +170,8 @@ export class GenericDatasource {
     //TODO: filter hidden queries.
     options.targets = _.filter(options.targets, target => {
       return target.table !== Common.strings.selectTable && 
-             target.selCol.text !== Common.strings.selectColumn;
+             target.selCol.text !== Common.strings.selectColumn && 
+             !target.hide;
     });
     let retVal = [];
     _.each(options.targets, (target, i) => {
