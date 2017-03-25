@@ -23,11 +23,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.filterObj.filterVal2 = this.target.filterObj.filterVal2 || null;
     this.target.whereArray = this.target.whereArray || [[{name:'name',value:null,op:'PREFIX'}]];
     this.randomId = this.randomId || 0;
-}
+  }
 
   getTables() {
     let param ={};
-    //TODO: handle grafana bug where they have the from and to fields.
     param.start = Common.toDate(this.panelCtrl.dashboard.time.from);
     param.end = Common.toDate(this.panelCtrl.dashboard.time.end);
     return this.datasource.findAllTables(param)
@@ -35,14 +34,6 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
       // Options have to be transformed by uiSegmentSrv to be usable by metric-segment-model directive
       // return this.datasource.findAllTables(this.target);
   }
-  _getpCols(){
-    console.log(this.target.pCols);
-    return Promise.resolve(this.target.pCols);
-  }
-  getpCols(){
-    return this._getpCols().then(this.uiSegmentSrv.transformToSegments(false));
-    // return getpcol(this).then();
-  } 
 
   toggleEditorMode() {
     this.target.rawQuery = !this.target.rawQuery;
@@ -82,14 +73,17 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
   addOrRow(){
     this.target.whereArray.push([{}]);
   }
+
   addAndRow(index){
     this.target.whereArray[index].push({});
   }
+
   delAndRow(pIndex,index){
     this.target.whereArray[pIndex].splice(index,1);
     if(this.target.whereArray[pIndex].length == 0)
       this.target.whereArray.splice(pIndex,1);
   }
+
   getIndexCols(){
     let filteredIndex = [];
     _.each(this.target.allCols, (d,i) => {
@@ -98,6 +92,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     });
     return filteredIndex;
   }
+
   getRandomId(){
     // TODO: Solve this using the tabindex of the pointer a element up in the
     // parent hierarchy.
