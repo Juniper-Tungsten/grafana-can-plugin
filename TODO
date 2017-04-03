@@ -3,6 +3,6 @@
 3. Explore annotation query implementation
 4. Write proper lintrc -- done
 5. update the mochatests.
-6. It is possible we may not require the datemath parser. So remove it from packaga.json and library js
+6. It is possible we may not require the datemath parser. So remove it from packaga.json and library js -- done
 7. Support alerting queries.
 For more TODO refer code.
