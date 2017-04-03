@@ -23,7 +23,13 @@
   "engineStrict": true,
   "devDependencies": {
     "babel": "~6.5.1",
+    "babel-eslint": "^7.0.0",
+    "babel-plugin-transform-es2015-modules-systemjs": "^6.5.0",
+    "babel-preset-es2015": "^6.5.0",
     "chai": "~3.5.0",
+    "eslint": "^3.6.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^2.0.0",
     "grunt": "~0.4.5",
     "grunt-babel": "~6.0.0",
     "grunt-cli": "^1.2.0",
