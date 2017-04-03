@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import {datemath} from './datemath-parser';
 export {Common};
 class Common {}
 Common.endpoints = {
@@ -19,9 +18,10 @@ Common.toDate = function (someDate) {
   if (someDate !== null && typeof someDate === 'object') {
     const timeString = someDate._d || someDate._i;
     return Date.parse(timeString) * 1000;
-  } else if (someDate !== null && typeof someDate === 'string') {
-    return datemath().parse(someDate) * 1000;
   }
+  // else if (someDate !== null && typeof someDate === 'string') {
+  //   return datemath().parse(someDate) * 1000;
+  // }
 };
 Common.getAuthDict = function (user, pass, tenant = 'admin') {
   return {auth: {passwordCredentials: {username: user,

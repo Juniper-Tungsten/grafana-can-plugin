@@ -190,7 +190,6 @@ export class GenericDatasource {
       if (target.filter) { qObj.filter = target.filter; }
       retVal.push(qObj);
     });
-    console.log(options);
     // options.targets = targets;
     return retVal;
   }
