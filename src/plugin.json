@@ -1,10 +1,10 @@
 {
-  "name": "Contrail Ananlytics",
-  "id": "contrailAnalytics",
+  "name": "Contrail Analytics",
+  "id": "contrailanalytics",
   "type": "datasource",
 
   "partials": {
-    "config": "public/app/plugins/datasource/contrailAnalytics/partials/config.html"
+    "config": "public/app/plugins/datasource/contrailanalytics/partials/config.html"
   },
 
   "metrics": true,
