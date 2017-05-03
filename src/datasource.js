@@ -1,3 +1,17 @@
+//  Copyright 2017, Juniper Networks, Inc.
+
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+
+//     http://www.apache.org/licenses/LICENSE-2.0
+
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+
 import _ from 'lodash';
 import {Common} from './common';
 export class GenericDatasource {
@@ -21,32 +35,32 @@ export class GenericDatasource {
   }
 
   query(options) {
-    let query_array = this.buildQueryParameters(options);
-    if (!query_array) {
+    let queryArray = this.buildQueryParameters(options);
+    if (!queryArray) {
       return this.q.when({data: []});
     }
-    let promise_array = [];
-    for (let i in query_array) {
-      let param_obj = {};
-      param_obj.url = this.url + Common.endpoints.query;
-      param_obj.data = query_array[i];
-      let p = this.analyticsQuery(param_obj);
-      promise_array[i] = p;
+    let promiseArray = [];
+    for (let i in queryArray) {
+      let paramObj = {};
+      paramObj.url = this.url + Common.endpoints.query;
+      paramObj.data = queryArray[i];
+      let p = this.analyticsQuery(paramObj);
+      promiseArray[i] = p;
     }
-    return this.q.all(promise_array).then((allData) => {
-      let return_obj = {data: []};
-      for (let i in allData) { return_obj.data[i] = Common.processResultData(allData[i]); }
-      return return_obj;
+    return this.q.all(promiseArray).then((allData) => {
+      let returnObj = {data: []};
+      for (let i in allData) { returnObj.data[i] = Common.processResultData(allData[i]); }
+      return returnObj;
     });
   }
 
   setAuthToken(forceRenew = false) {
     if (!forceRenew && this.authToken != null && (this.authTokenExpire - Date.now()) / 1000 > 0) { return this.q.when({token: this.authToken}); }
-    let auth_dict = Common.getAuthDict(this.canUsername, this.canPassword);
+    let authDict = Common.getAuthDict(this.canUsername, this.canPassword);
     return this.backendSrv.datasourceRequest({
       url: this.keystoneUrl,
       method: 'POST',
-      data: auth_dict,
+      data: authDict,
       headers: { 'Content-Type': 'application/json' }
     }).then((response) => {
       let pResp = Common.processAuthResponse(response);
@@ -90,44 +104,44 @@ export class GenericDatasource {
   }
 
   analyticsQuery(params) {
-    let api_endpoint = params.url;
+    let apiEndpoint = params.url;
     let method = params.method || 'POST';
     let headers = params.headers || {};
-    let req_obj = {};
+    let reqObj = {};
     if (method === 'POST') {
       if (!params.data) {
-        req_obj.end_time = params.end || 'now';// new Date().getTime();
-        req_obj.start_time = params.start || 'now-10m';// req_obj.end_time - 600000;
-        req_obj.select_fields = params.select || ['name', 'fields.value'];
-        req_obj.table = params.table || 'StatTable.FieldNames.fields';
-        req_obj.where = params.where || [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
-      } else { req_obj = params.data; }
+        reqObj.end_time = params.end || 'now';// new Date().getTime();
+        reqObj.start_time = params.start || 'now-10m';// req_obj.end_time - 600000;
+        reqObj.select_fields = params.select || ['name', 'fields.value'];
+        reqObj.table = params.table || 'StatTable.FieldNames.fields';
+        reqObj.where = params.where || [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
+      } else { reqObj = params.data; }
       headers['Content-Type'] = headers['Content-Type'] || 'application/json';
     }
     headers['X-Auth-Token'] = headers['X-Auth-Token'] || params.token;
     return this.setAuthToken().then((x) => {
-      let call_obj = {
-        url: api_endpoint,
+      let callObj = {
+        url: apiEndpoint,
         method: method,
         headers: headers
       };
-      if (method === 'POST') { call_obj.data = req_obj; }
-      call_obj.headers['X-Auth-Token'] = call_obj.headers['X-Auth-Token'] || x.token;
-      return this.backendSrv.datasourceRequest(call_obj);
+      if (method === 'POST') { callObj.data = reqObj; }
+      callObj.headers['X-Auth-Token'] = callObj.headers['X-Auth-Token'] || x.token;
+      return this.backendSrv.datasourceRequest(callObj);
     });
   }
 
   findAllTables(param) {
     // TODO: build optimization to cache tables
-    let param_obj = {};
-    param_obj.url = this.url + Common.endpoints.query;
-    param_obj.table = 'StatTable.FieldNames.fields';
-    param_obj.select = ['name', 'fields.value'];
-    param_obj.where = [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
-    param_obj.start = param.start || 'now-10m';// req_obj.end_time - 600000;
-    param_obj.end = param.end || 'now';// new Date().getTime();
+    let paramObj = {};
+    paramObj.url = this.url + Common.endpoints.query;
+    paramObj.table = 'StatTable.FieldNames.fields';
+    paramObj.select = ['name', 'fields.value'];
+    paramObj.where = [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
+    paramObj.start = param.start || 'now-10m';// req_obj.end_time - 600000;
+    paramObj.end = param.end || 'now';// new Date().getTime();
 
-    return this.analyticsQuery(param_obj)
+    return this.analyticsQuery(paramObj)
            .then(this.mapToTextValue);
   }
 
@@ -175,14 +189,14 @@ export class GenericDatasource {
       target = Common.filterQueryFields(target);
       if (!Common.isValidQuery(target)) { return false; }
       target = Common.transform(target);
-      let to_time = Common.toDate(options.range.to);
-      let from_time = Common.toDate(options.range.from);
-      to_time = Math.round(to_time);
-      from_time = Math.round(from_time);
+      let toTime = Common.toDate(options.range.to);
+      let fromTime = Common.toDate(options.range.from);
+      toTime = Math.round(toTime);
+      fromTime = Math.round(fromTime);
       let qObj = {
         'table': this.templateSrv.replace(target.table),
-        'start_time': from_time,
-        'end_time': to_time,
+        'start_time': fromTime,
+        'end_time': toTime,
         'select_fields': ['T', target.selCol],
         'where': target.where || [[{'name': 'name', 'value': '', 'op': 7}]],
         'limit': options.maxDataPoints

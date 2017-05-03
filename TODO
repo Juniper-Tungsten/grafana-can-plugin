@@ -5,4 +5,6 @@
 5. update the mochatests.
 6. It is possible we may not require the datemath parser. So remove it from packaga.json and library js -- done
 7. Support alerting queries.
+8. Change the svg image
+
 For more TODO refer code.
