@@ -177,7 +177,6 @@ export class GenericDatasource {
   }
 
   buildQueryParameters(options) {
-    console.log(Common.strings.selectTable);
     options.targets = _.filter(options.targets, (target) => {
       return !target.hide &&
              target.table &&
