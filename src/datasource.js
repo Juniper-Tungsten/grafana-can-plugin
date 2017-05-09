@@ -13,7 +13,7 @@
 //  limitations under the License.
 
 import _ from 'lodash';
-import {Common} from './common';
+import Common from './common';
 export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
@@ -177,6 +177,7 @@ export class GenericDatasource {
   }
 
   buildQueryParameters(options) {
+    console.log(Common.strings.selectTable);
     options.targets = _.filter(options.targets, (target) => {
       return !target.hide &&
              target.table &&
@@ -199,7 +200,7 @@ export class GenericDatasource {
         'end_time': toTime,
         'select_fields': ['T', target.selCol],
         'where': target.where || [[{'name': 'name', 'value': '', 'op': 7}]],
-        'limit': options.maxDataPoints
+        'limit': options.maxDataPoints || 1000
       };
       if (target.filter) { qObj.filter = target.filter; }
       retVal.push(qObj);

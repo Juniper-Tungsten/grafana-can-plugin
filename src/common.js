@@ -12,9 +12,10 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+const Common = {};
 import _ from 'lodash';
-export {Common};
-class Common {}
+export default Common;
+// class Common {}
 Common.endpoints = {
   'query': '/analytics/query',
   'tables': '/analytics/tables',
