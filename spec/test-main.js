@@ -15,6 +15,7 @@
 import prunk from 'prunk';
 import {jsdom} from 'jsdom';
 import chai from 'chai';
+import sinon from 'sinon';
 
 // Mock Grafana modules that are not available outside of the core project
 // Required for loading module.js

@@ -44,7 +44,8 @@
     "jsdom": "~3.1.2",
     "load-grunt-tasks": "~3.2.0",
     "prunk": "~1.2.1",
-    "q": "~1.4.1"
+    "q": "~1.4.1",
+    "sinon": "~2.2.0"
   },
   "dependencies": {
     "babel-plugin-transform-es2015-for-of": "^6.6.0",
