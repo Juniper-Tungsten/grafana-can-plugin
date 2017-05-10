@@ -131,7 +131,7 @@ export class GenericDatasource {
     });
   }
 
-  findAllTables(param) {
+  metricFindQuery(param) {
     // TODO: build optimization to cache tables
     let paramObj = {};
     paramObj.url = this.url + Common.endpoints.query;

@@ -44,10 +44,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     let param = {};
     param.start = Common.toDate(this.panelCtrl.dashboard.time.from);
     param.end = Common.toDate(this.panelCtrl.dashboard.time.end);
-    return this.datasource.findAllTables(param)
+    return this.datasource.metricFindQuery(param)
       .then(this.uiSegmentSrv.transformToSegments(false));
       // Options have to be transformed by uiSegmentSrv to be usable by metric-segment-model directive
-      // return this.datasource.findAllTables(this.target);
+      // return this.datasource.metricFindQuery(this.target);
   }
 
   toggleEditorMode() {
