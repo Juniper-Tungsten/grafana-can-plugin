@@ -12,8 +12,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-import {Datasource} from '../module';
+import sinon from 'sinon';
 import Q from 'q';
+import {Datasource} from '../module';
 
 describe('GenericDatasource', function () {
   let ctx = {};
@@ -26,7 +27,7 @@ describe('GenericDatasource', function () {
     ctx.ds = new Datasource({}, ctx.$q, ctx.backendSrv, ctx.templateSrv);
   });
 
-  it('should return success when credentials are correct', function (done) {
+  it('[testDatasource] should return success when credentials are correct', function (done) {
     ctx.backendSrv.datasourceRequest = function (request) {
       return ctx.$q.when({
         status: 200,
@@ -48,7 +49,7 @@ describe('GenericDatasource', function () {
     });
   });
 
-  it('should return failure when credentials are wrong', function (done) {
+  it('[testDatasource] should return failure when credentials are wrong', function (done) {
     ctx.backendSrv.datasourceRequest = function (request) {
       return ctx.$q.when({
         status: 200,
@@ -66,14 +67,14 @@ describe('GenericDatasource', function () {
     });
   });
 
-  it('should return an empty array when no targets are set', function (done) {
+  it('[query] should return an empty array when no targets are set', function (done) {
     ctx.ds.query({targets: []}).then(function (result) {
       expect(result.data).to.have.length(0);
       done();
     });
   });
 
-  it('should return the server results when a target is set', function (done) {
+  it('[query] should return the server results when a target is set', function (done) {
     ctx.backendSrv.datasourceRequest = function (request) {
       return ctx.$q.when({
         target: 'X',
@@ -121,7 +122,7 @@ describe('GenericDatasource', function () {
     });
   });
 
-  it('should return the metric(table names) results', function (done) {
+  it('[metricFindQuery] should return the metric(table names) results', function (done) {
     ctx.backendSrv.datasourceRequest = function (request) {
       return ctx.$q.when({
         data: {
@@ -166,17 +167,17 @@ describe('GenericDatasource', function () {
 
   });
 
-  it('should throw error when args are undefined', function (done) {
+  it('[metricFindQuery] should throw error when args are undefined', function (done) {
     global.assert.throw(function () { ctx.ds.metricFindQuery(); }, Error, "Cannot read property 'start' of undefined");
     done();
   });
 
-  it('should throw error when args are null', function (done) {
+  it('[metricFindQuery] should throw error when args are null', function (done) {
     global.assert.throw(function () { ctx.ds.metricFindQuery(null); }, Error, "Cannot read property 'start' of null");
     done();
   });
 
-  it('should return data as text and as value', function (done) {
+  it('[mapToTextValue] should return data as text and as value', function (done) {
     let result = ctx.ds.mapToTextValue({data: {value: [{'fields.value': 'zero'},
                                                        {'fields.value': 'one'},
                                                        {'fields.value': 'two'}]}});
@@ -191,4 +192,120 @@ describe('GenericDatasource', function () {
     done();
   });
 
+  it('[analyticsQuery] should handle GET method', function (done) {
+    global.assert.throw(function () { ctx.ds.analyticsQuery(null); }, Error, "Cannot read property 'url' of null");
+    let datasourceRequestMock = sinon.stub();
+    let retObj = ctx.$q.when({
+      target: 'X',
+      data: {
+        value: [{
+          T: '140000000',
+          val: '1234'
+        },
+        {
+          T: '140000001',
+          val: '1235'
+        }
+        ]
+      },
+      config: {data: {select_fields: ['T', 'table_name']}}
+    });
+    datasourceRequestMock.returns(retObj);
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    // datasourceRequestMock.expects('datasourceRequest').twice().returns(retObj);
+    const paramObj = {
+      'url': 'hello',
+      'method': 'GET',
+    };
+    ctx.ds.analyticsQuery(paramObj).then(result => {
+      expect(datasourceRequestMock.calledTwice).to.be.true;
+      // first call is for token request
+      expect(datasourceRequestMock.getCall(1).args[0].url).to.equal('hello');
+      expect(datasourceRequestMock.getCall(1).args[0].method).to.equal('GET');
+      done();
+    });
+  });
+
+  it('[analyticsQuery] should handle POST method: default data', function (done) {
+    let datasourceRequestMock = sinon.stub();
+    let dataObj = {
+      value: [{
+        T: '140000000',
+        val: '1234'
+      },
+      {
+        T: '140000001',
+        val: '1235'
+      }
+      ]
+    };
+    let retObj = ctx.$q.when({
+      target: 'X',
+      data: dataObj,
+      config: {data: {select_fields: ['T', 'table_name']}}
+    });
+    datasourceRequestMock.returns(retObj);
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    // datasourceRequestMock.expects('datasourceRequest').twice().returns(retObj);
+    const paramObj = {
+      'url': 'hello_post'
+    };
+    ctx.ds.analyticsQuery(paramObj).then(result => {
+      expect(result.data).to.deep.equal(dataObj);
+      expect(datasourceRequestMock.calledTwice).to.be.true;
+      // first call is for token request
+      expect(datasourceRequestMock.getCall(1).args[0].url).to.equal('hello_post');
+      expect(datasourceRequestMock.getCall(1).args[0].method).to.equal('POST');
+      expect(datasourceRequestMock.getCall(1).args[0].data.end_time).to.equal('now');
+      expect(datasourceRequestMock.getCall(1).args[0].data.start_time).to.equal('now-10m');
+      expect(datasourceRequestMock.getCall(1).args[0].data.select_fields).to.deep.equal(['name', 'fields.value']);
+      expect(datasourceRequestMock.getCall(1).args[0].data.table).to.equal('StatTable.FieldNames.fields');
+      expect(datasourceRequestMock.getCall(1).args[0].data.where).to.deep.equal([[{'name': 'name', 'value': 'STAT', 'op': 7}]]);
+
+      done();
+    });
+  });
+
+  it('[analyticsQuery] should handle POST method: custom data', function (done) {
+    let datasourceRequestMock = sinon.stub();
+    let dataObj = {
+      value: [{
+        T: '140000000',
+        val: '1234'
+      },
+      {
+        T: '140000001',
+        val: '1235'
+      }
+      ]
+    };
+    let retObj = ctx.$q.when({
+      target: 'X',
+      data: dataObj,
+      config: {data: {select_fields: ['T', 'table_name']}}
+    });
+    datasourceRequestMock.returns(retObj);
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    // datasourceRequestMock.expects('datasourceRequest').twice().returns(retObj);
+    const paramObj = {
+      'url': 'hello_post_custom'
+    };
+    paramObj.data = {
+      'end': '1 year',
+      'start': '0 year',
+      'select_fields': ['some_val'],
+      'table': 'thattable',
+      'filter': '#nofilter'
+    };
+    ctx.ds.analyticsQuery(paramObj).then(result => {
+      expect(result.data).to.deep.equal(dataObj);
+      expect(datasourceRequestMock.calledTwice).to.be.true;
+      // first call is for token request
+      expect(datasourceRequestMock.getCall(1).args[0].url).to.equal('hello_post_custom');
+      expect(datasourceRequestMock.getCall(1).args[0].method).to.equal('POST');
+      expect(datasourceRequestMock.getCall(1).args[0].data).to.deep.equal(paramObj.data);
+
+      done();
+    });
+  });
 });

@@ -10,4 +10,5 @@
 10. Use a common string in metricFindQuery function -- done
 11. Add a call to check whether provided url is correct or not in testDatasource -- done
 12. Support table field with data type string for table support 
+13. Use default behaviour for analyticsQuery.
 For more TODO refer code.
