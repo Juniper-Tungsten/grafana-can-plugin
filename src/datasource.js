@@ -74,9 +74,24 @@ export class GenericDatasource {
   }
 
   testDatasource() {
-    return this.setAuthToken().then((resp) => {
-      if (resp.token) { return {status: 'success', message: 'Data source is working', title: 'Success'}; }
-      return {status: 'failure', message: 'Unable to reach keystone server', title: 'Failure'};
+    return this.setAuthToken()
+    .then((resp) => {
+      if (!resp.token) { return undefined; }
+      let paramObj = {};
+      paramObj.url = this.url + Common.endpoints.query;
+      paramObj.table = Common.allTableTableName;
+      paramObj.select = ['name', 'fields.value'];
+      paramObj.where = [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
+      paramObj.start = 'now-10m';
+      paramObj.end = 'now';
+      paramObj.token = resp.token;
+      return this.analyticsQuery(paramObj);
+    })
+    .then((resp) => {
+      if (resp === undefined || resp.status !== 200) {
+        return {status: 'failure', message: 'Unable to reach keystone or api server', title: 'Failure'};
+      }
+      return {status: 'success', message: 'Data source is working', title: 'Success'};
     });
   }
 
@@ -113,7 +128,7 @@ export class GenericDatasource {
         reqObj.end_time = params.end || 'now';// new Date().getTime();
         reqObj.start_time = params.start || 'now-10m';// req_obj.end_time - 600000;
         reqObj.select_fields = params.select || ['name', 'fields.value'];
-        reqObj.table = params.table || 'StatTable.FieldNames.fields';
+        reqObj.table = params.table || Common.allTableTableName;
         reqObj.where = params.where || [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
       } else { reqObj = params.data; }
       headers['Content-Type'] = headers['Content-Type'] || 'application/json';
@@ -135,7 +150,7 @@ export class GenericDatasource {
     // TODO: build optimization to cache tables
     let paramObj = {};
     paramObj.url = this.url + Common.endpoints.query;
-    paramObj.table = 'StatTable.FieldNames.fields';
+    paramObj.table = Common.allTableTableName;
     paramObj.select = ['name', 'fields.value'];
     paramObj.where = [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
     paramObj.start = param.start || 'now-10m';// req_obj.end_time - 600000;

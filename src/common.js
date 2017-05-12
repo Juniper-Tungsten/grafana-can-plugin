@@ -22,6 +22,7 @@ Common.endpoints = {
   'table': '/analytics/table',
   'tableSchema': '/schema'
 };
+Common.allTableTableName = 'StatTable.FieldNames.fields';
 Common.strings = {
   'selectTable': 'Select Table',
   'selectColumn': 'Select Field'

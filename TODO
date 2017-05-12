@@ -7,6 +7,7 @@
 7. Support alerting queries.
 8. Change the svg image
 9. Make sure to modify plugin.json if annotations are not supported
-10. Use a common string in metricFindQuery function
-11. Add a call to check whether provided url is correct or not in testDatasource
+10. Use a common string in metricFindQuery function -- done
+11. Add a call to check whether provided url is correct or not in testDatasource -- done
+12. Support table field with data type string for table support 
 For more TODO refer code.
