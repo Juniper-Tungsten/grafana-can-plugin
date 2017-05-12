@@ -15,7 +15,7 @@
 import _ from 'lodash';
 import {QueryCtrl} from 'app/plugins/sdk';
 import './css/query-editor.css!';
-import {Common} from './common';
+import Common from './common';
 
 export class GenericDatasourceQueryCtrl extends QueryCtrl {
 

@@ -8,4 +8,5 @@
 8. Change the svg image
 9. Make sure to modify plugin.json if annotations are not supported
 10. Use a common string in metricFindQuery function
+11. Add a call to check whether provided url is correct or not in testDatasource
 For more TODO refer code.
