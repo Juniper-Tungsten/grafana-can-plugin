@@ -96,6 +96,7 @@ Common.filterQueryFields = function (targetObj) {
     targetObj.filter = filterObj;
     if (targetObj.selCol == null ||
             targetObj.selCol === Common.strings.selectColumn ||
+            !filterObj ||
             filterObj.selFilterOp == null ||
             filterObj.filterVal == null ||
             filterObj.filterVal == '' ||
