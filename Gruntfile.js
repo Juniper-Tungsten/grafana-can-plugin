@@ -1,13 +1,11 @@
-module.exports = function(grunt) {
-
+module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
-
   grunt.initConfig({
 
-    clean: ["dist"],
+    clean: ['dist', 'coverage'],
 
     copy: {
       src_to_dist: {
@@ -34,7 +32,7 @@ module.exports = function(grunt) {
     babel: {
       options: {
         sourceMap: true,
-        presets:  ['es2015']
+        presets: ['es2015']
       },
       dist: {
         options: {
@@ -45,7 +43,7 @@ module.exports = function(grunt) {
           expand: true,
           src: ['**/*.js'],
           dest: 'dist',
-          ext:'.js'
+          ext: '.js'
         }]
       },
       distTestNoSystemJs: {
@@ -54,7 +52,7 @@ module.exports = function(grunt) {
           expand: true,
           src: ['**/*.js'],
           dest: 'dist/test',
-          ext:'.js'
+          ext: '.js'
         }]
       },
       distTestsSpecsNoSystemJs: {
@@ -63,21 +61,21 @@ module.exports = function(grunt) {
           cwd: 'spec',
           src: ['**/*.js'],
           dest: 'dist/test/spec',
-          ext:'.js'
+          ext: '.js'
         }]
       }
     },
-
-    mochaTest: {
-      test: {
+    mocha_istanbul: {
+      coverage: {
+        src: ['dist/test/spec/test-main.js', 'dist/test/spec/*_spec.js'],
         options: {
-          reporter: 'spec',
-          require: 'babel-register'
-        },
-        src: ['dist/test/spec/test-main.js', 'dist/test/spec/*_spec.js']
+          coverageFolder: 'coverage',
+          root: 'dist/test/',
+          reportFormats: ['text', 'html']
+        }
       }
     }
   });
 
-  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'babel', 'mochaTest' ]);
+  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'babel', 'mocha_istanbul']);
 };

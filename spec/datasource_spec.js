@@ -16,7 +16,7 @@ import sinon from 'sinon';
 import Q from 'q';
 import {Datasource} from '../module';
 
-describe('GenericDatasource', function () {
+describe('Contail Analytics Datasource', function () {
   let ctx = {};
 
   beforeEach(function () {
@@ -141,7 +141,6 @@ describe('GenericDatasource', function () {
         tenantName: 'admin'}
     };
     ctx.ds.setAuthToken().then((result) => {
-      console.log(result);
       expect(result.token).to.be.equal('id1');
       expect(ctx.ds.authToken).to.be.equal('id1');
       expect(ctx.ds.authTokenExpire).to.be.equal(1494697942000);
@@ -170,7 +169,6 @@ describe('GenericDatasource', function () {
         tenantName: 'admin'}
     };
     ctx.ds.setAuthToken().then((result) => {
-      console.log(result);
       expect(result.token).to.be.equal(null);
       expect(ctx.ds.authToken).to.be.equal(null);
       expect(ctx.ds.authTokenExpire).to.be.equal(null);
@@ -202,7 +200,6 @@ describe('GenericDatasource', function () {
     };
     ctx.ds.authToken = 'token1';
     ctx.ds.setAuthToken(true).then((result) => {
-      console.log(result);
       expect(result.token).to.be.equal('token2');
       expect(ctx.ds.authToken).to.be.equal('token2');
       expect(ctx.ds.authTokenExpire).to.be.equal(1494697942000);
@@ -222,7 +219,6 @@ describe('GenericDatasource', function () {
     let dateMock = sinon.stub(Date, 'now');
     dateMock.returns(2000);
     ctx.ds.setAuthToken().then((result) => {
-      console.log(result);
       expect(result.token).to.be.equal('token1');
       expect(ctx.ds.authToken).to.be.equal('token1');
       expect(ctx.ds.authTokenExpire).to.be.equal(3000);
