@@ -122,6 +122,115 @@ describe('GenericDatasource', function () {
     });
   });
 
+  it('[setAuthToken] should set and return auth token', function (done) {
+    let datasourceRequestMock = sinon.stub();
+    let retObj = ctx.$q.when({
+      status: 200,
+      data: {
+        'access': {'token': {'id': 'id1', 'expires': '2017-05-13T17:52:22Z'}}
+      }
+    });
+    datasourceRequestMock.returns(retObj);
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    ctx.ds.keystoneUrl = 'keystoneUrl';
+    ctx.ds.canUsername = 'admin';
+    ctx.ds.canPassword = 'admin';
+    let authDict = {
+      auth: {passwordCredentials: {username: 'admin',
+        password: 'admin'},
+        tenantName: 'admin'}
+    };
+    ctx.ds.setAuthToken().then((result) => {
+      console.log(result);
+      expect(result.token).to.be.equal('id1');
+      expect(ctx.ds.authToken).to.be.equal('id1');
+      expect(ctx.ds.authTokenExpire).to.be.equal(1494697942000);
+      expect(datasourceRequestMock.calledOnce).to.be.true;
+      expect(datasourceRequestMock.getCall(0).args[0].method).to.be.equal('POST');
+      expect(datasourceRequestMock.getCall(0).args[0].url).to.be.equal('keystoneUrl');
+      expect(datasourceRequestMock.getCall(0).args[0].data).to.deep.equal(authDict);
+      done();
+    });
+  });
+
+  it('[setAuthToken] should set token null when wrong credentials', function (done) {
+    let datasourceRequestMock = sinon.stub();
+    let retObj = ctx.$q.when({
+      status: 500,
+      data: null
+    });
+    datasourceRequestMock.returns(retObj);
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    ctx.ds.keystoneUrl = 'keystoneUrl';
+    ctx.ds.canUsername = 'admin';
+    ctx.ds.canPassword = 'admin';
+    let authDict = {
+      auth: {passwordCredentials: {username: 'admin',
+        password: 'admin'},
+        tenantName: 'admin'}
+    };
+    ctx.ds.setAuthToken().then((result) => {
+      console.log(result);
+      expect(result.token).to.be.equal(null);
+      expect(ctx.ds.authToken).to.be.equal(null);
+      expect(ctx.ds.authTokenExpire).to.be.equal(null);
+      expect(datasourceRequestMock.calledOnce).to.be.true;
+      expect(datasourceRequestMock.getCall(0).args[0].method).to.be.equal('POST');
+      expect(datasourceRequestMock.getCall(0).args[0].url).to.be.equal('keystoneUrl');
+      expect(datasourceRequestMock.getCall(0).args[0].data).to.deep.equal(authDict);
+      done();
+    });
+  });
+
+  it('[setAuthToken] should renew token on forceRenew', function (done) {
+    let datasourceRequestMock = sinon.stub();
+    let retObj = ctx.$q.when({
+      status: 200,
+      data: {
+        'access': {'token': {'id': 'token2', 'expires': '2017-05-13T17:52:22Z'}}
+      }
+    });
+    datasourceRequestMock.returns(retObj);
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    ctx.ds.keystoneUrl = 'keystoneUrl';
+    ctx.ds.canUsername = 'admin';
+    ctx.ds.canPassword = 'admin';
+    let authDict = {
+      auth: {passwordCredentials: {username: 'admin',
+        password: 'admin'},
+        tenantName: 'admin'}
+    };
+    ctx.ds.authToken = 'token1';
+    ctx.ds.setAuthToken(true).then((result) => {
+      console.log(result);
+      expect(result.token).to.be.equal('token2');
+      expect(ctx.ds.authToken).to.be.equal('token2');
+      expect(ctx.ds.authTokenExpire).to.be.equal(1494697942000);
+      expect(datasourceRequestMock.calledOnce).to.be.true;
+      expect(datasourceRequestMock.getCall(0).args[0].method).to.be.equal('POST');
+      expect(datasourceRequestMock.getCall(0).args[0].url).to.be.equal('keystoneUrl');
+      expect(datasourceRequestMock.getCall(0).args[0].data).to.deep.equal(authDict);
+      done();
+    });
+  });
+
+  it('[setAuthToken] should reuse the cached token', function (done) {
+    let datasourceRequestMock = sinon.spy();
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    ctx.ds.authToken = 'token1';
+    ctx.ds.authTokenExpire = 3000;
+    let dateMock = sinon.stub(Date, 'now');
+    dateMock.returns(2000);
+    ctx.ds.setAuthToken().then((result) => {
+      console.log(result);
+      expect(result.token).to.be.equal('token1');
+      expect(ctx.ds.authToken).to.be.equal('token1');
+      expect(ctx.ds.authTokenExpire).to.be.equal(3000);
+      expect(datasourceRequestMock.calledOnce).to.be.false;
+      done();
+    });
+  });
+
   it('[metricFindQuery] should return the metric(table names) results', function (done) {
     ctx.backendSrv.datasourceRequest = function (request) {
       return ctx.$q.when({
@@ -443,6 +552,4 @@ describe('GenericDatasource', function () {
     expect(result).to.deep.equal(expectedRes);
     done();
   });
-
-  
 });
