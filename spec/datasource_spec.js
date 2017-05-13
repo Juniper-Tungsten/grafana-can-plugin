@@ -163,8 +163,6 @@ describe('GenericDatasource', function () {
       expect(result[1].value).to.equal(1);
       done();
     });
-
-
   });
 
   it('[metricFindQuery] should throw error when args are undefined', function (done) {
@@ -217,7 +215,7 @@ describe('GenericDatasource', function () {
       'url': 'hello',
       'method': 'GET',
     };
-    ctx.ds.analyticsQuery(paramObj).then(result => {
+    ctx.ds.analyticsQuery(paramObj).then((result) => {
       expect(datasourceRequestMock.calledTwice).to.be.true;
       // first call is for token request
       expect(datasourceRequestMock.getCall(1).args[0].url).to.equal('hello');
@@ -250,7 +248,7 @@ describe('GenericDatasource', function () {
     const paramObj = {
       'url': 'hello_post'
     };
-    ctx.ds.analyticsQuery(paramObj).then(result => {
+    ctx.ds.analyticsQuery(paramObj).then((result) => {
       expect(result.data).to.deep.equal(dataObj);
       expect(datasourceRequestMock.calledTwice).to.be.true;
       // first call is for token request
@@ -297,7 +295,7 @@ describe('GenericDatasource', function () {
       'table': 'thattable',
       'filter': '#nofilter'
     };
-    ctx.ds.analyticsQuery(paramObj).then(result => {
+    ctx.ds.analyticsQuery(paramObj).then((result) => {
       expect(result.data).to.deep.equal(dataObj);
       expect(datasourceRequestMock.calledTwice).to.be.true;
       // first call is for token request
@@ -308,4 +306,143 @@ describe('GenericDatasource', function () {
       done();
     });
   });
+
+  it('[getColumns] should return columns', function (done) {
+    let datasourceRequestMock = sinon.stub();
+    let dataObj = {
+      'type': 'STAT',
+      'columns': [
+        {'datatype': 'string', 'index': true, 'name': 'Source', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'T', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'CLASS(T)', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'T=', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'CLASS(T=)', 'suffixes': null},
+        {'datatype': 'uuid', 'index': false, 'name': 'UUID', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'COUNT(counters)', 'suffixes': null}
+      ]
+    };
+    let filteredRes = [
+      {'text': 'COUNT(counters)', 'type': 'int', 'value': 0, 'index': false}
+    ];
+    let unfilteredRes = [
+      {'type': 'string', 'index': true, 'text': 'Source', 'value': 0},
+      {'type': 'int', 'index': false, 'text': 'T', 'value': 1},
+      {'type': 'int', 'index': false, 'text': 'CLASS(T)', 'value': 2},
+      {'type': 'int', 'index': false, 'text': 'T=', 'value': 3},
+      {'type': 'int', 'index': false, 'text': 'CLASS(T=)', 'value': 4},
+      {'type': 'uuid', 'index': false, 'text': 'UUID', 'value': 5},
+      {'type': 'int', 'index': false, 'text': 'COUNT(counters)', 'value': 6}
+    ];
+    let retObj = ctx.$q.when({
+      target: 'X',
+      data: dataObj,
+      config: {data: {select_fields: ['T', 'table_name']}}
+    });
+    datasourceRequestMock.returns(retObj);
+    ctx.ds.backendSrv.datasourceRequest = datasourceRequestMock;
+    ctx.ds.url = 'myurl';
+    const tableName = 'myTable';
+    ctx.ds.getColumns(tableName).then((result) => {
+      expect(result.filtered).to.deep.equal(filteredRes);
+      expect(result.unfiltered).to.deep.equal(unfilteredRes);
+      expect(datasourceRequestMock.calledTwice).to.be.true;
+      expect(datasourceRequestMock.getCall(1).args[0].url).to.equal(
+                                                          'myurl/analytics/table/'
+                                                          + tableName +
+                                                          '/schema');
+      expect(datasourceRequestMock.getCall(1).args[0].method).to.equal('GET');
+      done();
+    });
+  });
+
+  it('[mapToValue] should return filtered and unfiltered columns', function (done) {
+    global.assert.throw(function () { ctx.ds.mapToValue(null); }, Error, "Cannot read property 'data' of null");
+    global.assert.throw(function () { ctx.ds.mapToValue(undefined); }, Error, "Cannot read property 'data' of undefined");
+    let dataObj = {
+      'type': 'STAT',
+      'columns': [
+        {'datatype': 'StRiNg', 'index': true, 'name': 'Source', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 't', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'CLASS(T)', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'T=', 'suffixes': null},
+        {'datatype': 'int', 'index': false, 'name': 'CLASS(T=)', 'suffixes': null},
+        {'datatype': 'UUID', 'index': false, 'name': 'UUID', 'suffixes': null},
+        {'datatype': 'INT', 'index': false, 'name': 'COUNT(counters)', 'suffixes': null}
+      ]
+    };
+    let filteredRes = [
+      {'text': 'COUNT(counters)', 'type': 'INT', 'value': 0, 'index': false}
+    ];
+    let unfilteredRes = [
+      {'type': 'StRiNg', 'index': true, 'text': 'Source', 'value': 0},
+      {'type': 'int', 'index': false, 'text': 't', 'value': 1},
+      {'type': 'int', 'index': false, 'text': 'CLASS(T)', 'value': 2},
+      {'type': 'int', 'index': false, 'text': 'T=', 'value': 3},
+      {'type': 'int', 'index': false, 'text': 'CLASS(T=)', 'value': 4},
+      {'type': 'UUID', 'index': false, 'text': 'UUID', 'value': 5},
+      {'type': 'INT', 'index': false, 'text': 'COUNT(counters)', 'value': 6}
+    ];
+    let retObj = {data: dataObj};
+    let result = ctx.ds.mapToValue(retObj);
+    expect(result.filtered).to.deep.equal(filteredRes);
+    expect(result.unfiltered).to.deep.equal(unfilteredRes);
+    done();
+  });
+
+  it('[buildQueryParameters] should return valid query object', function (done) {
+    let options = {
+      'targets': [
+        {'hide': false, 'table': 'Select Table', 'selCol': 'someCol'},
+        {'hide': false, 'table': 'Some table'},
+        {'hide': false, 'selCol': 'someCol'},
+        {'hide': true, 'table': 'someTable', 'selCol': 'someCol'},
+        {'hide': false, 'table': 'someTable', 'selCol': 'someCol', 'advanced': false},
+        {'hide': false,
+          'table': 'someTable',
+          'selCol': 'someCol',
+          'advanced': true,
+          'whereArray': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 'GEQ'}]]},
+        {'hide': false,
+          'table': 'someTable',
+          'selCol': 'someCol',
+          'advanced': true,
+          'whereArray': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 'GEQ'}, {'op': 'LEQ', 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 'GEQ', 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]},
+        {'hide': false,
+          'table': 'someTable',
+          'selCol': 'someCol',
+          'advanced': false,
+          'whereArray': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 'GEQ'}, {'op': 'LEQ', 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 'GEQ', 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]},
+        {'hide': false,
+          'table': 'someTable',
+          'selCol': 'someCol',
+          'advanced': true,
+          'filterObj': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000},
+          'whereArray': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 'GEQ'}, {'op': 'LEQ', 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 'GEQ', 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]},
+        {'hide': false,
+          'table': 'someTable',
+          'selCol': 'someCol',
+          'advanced': false,
+          'filterObj': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000},
+          'whereArray': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 'GEQ'}, {'op': 'LEQ', 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 'GEQ', 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]}
+      ],
+      'range': {'to': 'f', 'from': 'f'}
+    };
+    ctx.templateSrv.replace = function (data) {
+      return data;
+    };
+    let result = ctx.ds.buildQueryParameters(options);
+    let expectedRes = [
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'name', 'value': '', 'op': 7}]], 'limit': 1000},
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'process_mem_cpu_usage.cpu_share', 'op': 6, 'value': '6000000', 'value2': undefined}]], 'limit': 1000},
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'process_mem_cpu_usage.cpu_share', 'op': 6, 'value': '6000000', 'value2': undefined}, {'name': 'process_mem_cpu_usage.cpu_share', 'op': 5, 'value': '10000000', 'value2': undefined}], [{'name': 'process_mem_cpu_usage.__key', 'op': 6, 'value': '67', 'value2': undefined}]], 'limit': 1000},
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'name', 'value': '', 'op': 7}]], 'limit': 1000},
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'process_mem_cpu_usage.cpu_share', 'op': 6, 'value': '6000000', 'value2': undefined}, {'name': 'process_mem_cpu_usage.cpu_share', 'op': 5, 'value': '10000000', 'value2': undefined}], [{'name': 'process_mem_cpu_usage.__key', 'op': 6, 'value': '67', 'value2': undefined}]], 'limit': 1000, 'filter': [{'name': 'someCol', 'value': 9000000, 'op': 3}]},
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'name', 'value': '', 'op': 7}]], 'limit': 1000}
+    ];
+    expect(result).to.have.length(6);
+    expect(result).to.deep.equal(expectedRes);
+    done();
+  });
+
+  
 });
