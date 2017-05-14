@@ -27,44 +27,20 @@ describe('Contail Analytics Datasource', function () {
     ctx.ds = new Datasource({}, ctx.$q, ctx.backendSrv, ctx.templateSrv);
   });
 
-  it('[testDatasource] should return success when credentials are correct', function (done) {
-    ctx.backendSrv.datasourceRequest = function (request) {
-      return ctx.$q.when({
-        status: 200,
-        data: {
-          access: {
-            token: {id: '140000000', expires: 1497409035845}
-          }
-        }
-      });
+  it('should set the instanceSettings', function (done) {
+    let instanceSettings = {
+      jsonData: {
+        keystoneUrl: 'thisUrl',
+        canUsername: 'thisUsername',
+        canPassword: 'thisPassword'
+      }
     };
-
-    ctx.templateSrv.replace = function (data) {
-      return data;
-    };
-
-    ctx.ds.testDatasource().then(function (result) {
-      expect(result.status).to.equal('success');
-      done();
-    });
-  });
-
-  it('[testDatasource] should return failure when credentials are wrong', function (done) {
-    ctx.backendSrv.datasourceRequest = function (request) {
-      return ctx.$q.when({
-        status: 200,
-        data: {}
-      });
-    };
-
-    ctx.templateSrv.replace = function (data) {
-      return data;
-    };
-
-    ctx.ds.testDatasource().then(function (result) {
-      expect(result.status).to.equal('failure');
-      done();
-    });
+    let ds = new Datasource(instanceSettings, ctx.$q, ctx.backendSrv, ctx.templateSrv);
+    expect(ds.keystoneUrl).to.be.equal('thisUrl');
+    expect(ds.canUsername).to.be.equal('thisUsername');
+    expect(ds.canPassword).to.be.equal('thisPassword');
+    expect(ds.instanceSettings).to.deep.equal(instanceSettings);
+    done();
   });
 
   it('[query] should return an empty array when no targets are set', function (done) {
@@ -118,6 +94,46 @@ describe('Contail Analytics Datasource', function () {
       let series = result.data[0];
       expect(series.target).to.equal('table_name');
       expect(series.datapoints).to.have.length(2);
+      done();
+    });
+  });
+
+  it('[testDatasource] should return success when credentials are correct', function (done) {
+    ctx.backendSrv.datasourceRequest = function (request) {
+      return ctx.$q.when({
+        status: 200,
+        data: {
+          access: {
+            token: {id: '140000000', expires: 1497409035845}
+          }
+        }
+      });
+    };
+
+    ctx.templateSrv.replace = function (data) {
+      return data;
+    };
+
+    ctx.ds.testDatasource().then(function (result) {
+      expect(result.status).to.equal('success');
+      done();
+    });
+  });
+
+  it('[testDatasource] should return failure when credentials are wrong', function (done) {
+    ctx.backendSrv.datasourceRequest = function (request) {
+      return ctx.$q.when({
+        status: 200,
+        data: {}
+      });
+    };
+
+    ctx.templateSrv.replace = function (data) {
+      return data;
+    };
+
+    ctx.ds.testDatasource().then(function (result) {
+      expect(result.status).to.equal('failure');
       done();
     });
   });
