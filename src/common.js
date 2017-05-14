@@ -73,14 +73,13 @@ Common.filterQueryFields = function (targetObj) {
     _.each(targetObj.whereArray, (andRowArray, i) => {
       const innerArray = [];
       _.each(andRowArray, (andRow, j) => {
-        if (andRow.op == null ||
-                    andRow.name == null ||
-                    andRow.value == null ||
-                    andRow.value == '' ||
-                    (andRow.op &&
-                        andRow.op.toLowerCase().indexOf('range') !== -1 &&
-                        andRow.value2 == null)
-                   ) { return false; }
+        if (!andRow.op ||
+            !andRow.name ||
+            !andRow.value ||
+            (andRow.op &&
+              andRow.op.toLowerCase().indexOf('range') !== -1 &&
+              !andRow.value2)
+            ) { return false; }
         innerArray.push({
           name: andRow.name,
           op: andRow.op,
@@ -94,22 +93,21 @@ Common.filterQueryFields = function (targetObj) {
     targetObj.where = whereArray.length === 0 ? null : whereArray;
     const filterObj = targetObj.filterObj;
     targetObj.filter = filterObj;
-    if (targetObj.selCol == null ||
+    if (!targetObj.selCol ||
             targetObj.selCol === Common.strings.selectColumn ||
             !filterObj ||
-            filterObj.selFilterOp == null ||
-            filterObj.filterVal == null ||
-            filterObj.filterVal == '' ||
+            !filterObj.selFilterOp ||
+            !filterObj.filterVal ||
             (filterObj.selFilterOp &&
                 filterObj.selFilterOp.toLowerCase().indexOf('range') !== -1 &&
-                filterObj.filterVal2 == null)) { targetObj.filter = null; }
+                !filterObj.filterVal2)) { targetObj.filter = null; }
   }
   return targetObj;
 };
 Common.isValidQuery = function (targetObj) {
-  if (targetObj.table == null ||
-       targetObj.selCol == null ||
-       targetObj.selCol === Common.strings.selectColumn) { return false; }
+  if (!targetObj.table ||
+      !targetObj.selCol ||
+      !targetObj.selCol === Common.strings.selectColumn) { return false; }
   return true;
 };
 Common.transform = function (targetObj) {
