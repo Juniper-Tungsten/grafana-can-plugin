@@ -79,11 +79,6 @@ export class GenericDatasource {
       if (!resp.token) { return undefined; }
       let paramObj = {};
       paramObj.url = this.url + Common.endpoints.query;
-      paramObj.table = Common.allTableTableName;
-      paramObj.select = ['name', 'fields.value'];
-      paramObj.where = [[{'name': 'name', 'value': 'STAT', 'op': 7}]];
-      paramObj.start = 'now-10m';
-      paramObj.end = 'now';
       paramObj.token = resp.token;
       return this.analyticsQuery(paramObj);
     })

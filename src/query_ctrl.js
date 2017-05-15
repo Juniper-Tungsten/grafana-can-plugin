@@ -56,7 +56,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
 
   onChangeTable() {
     let selectedTable = this.target.table;
-    if (!selectedTable.includes('select metric')) {
+    if (!selectedTable.includes(Common.strings.selectTable)) {
       this.datasource.getColumns(selectedTable).then((result) => {
         this.target.pCols = _.map(result.filtered, (d, i) => {
           return d.text;

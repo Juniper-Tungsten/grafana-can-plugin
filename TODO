@@ -2,7 +2,7 @@
 2. Learn to configure keystone for CORS. -- postponed
 3. Explore annotation query implementation
 4. Write proper lintrc -- done
-5. update the mochatests.
+5. update the mochatests. -- done
 6. It is possible we may not require the datemath parser. So remove it from packaga.json and library js -- done
 7. Support alerting queries.
 8. Change the svg image
@@ -10,6 +10,6 @@
 10. Use a common string in metricFindQuery function -- done
 11. Add a call to check whether provided url is correct or not in testDatasource -- done
 12. Support table field with data type string for table support 
-13. Use default behaviour for analyticsQuery.
-14. Use common string in onChangeTable
+13. Use default behaviour for analyticsQuery -- done in testDatasource only.
+14. Use common string in onChangeTable -- done 
 For more TODO refer code.
