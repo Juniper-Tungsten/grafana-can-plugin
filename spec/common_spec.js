@@ -222,7 +222,7 @@ describe('common.js', function () {
     let expectedRes = [
       {filter: null, where: null},
       {'selCol': 'someCol',
-        'filter': [{name: 'someCol', value: 1, op: 6}],
+        'filter': [{name: 'someCol', value: 1, op: 6, value2: undefined}],
         'where': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 6}, {'op': 5, 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 6, 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]}
     ];
     let testFunc = function(index) {

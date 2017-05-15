@@ -115,7 +115,7 @@ Common.transform = function (targetObj) {
     targetObj.filter = [{
       name: targetObj.selCol,
       value: targetObj.filter.filterVal,
-            // value2:targetObj.filter.filterVal2,
+      value2: targetObj.filter.filterVal2,
       op: Common.allOperators.indexOf(targetObj.filter.selFilterOp) + 1
     }];
   }
