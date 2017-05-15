@@ -20,7 +20,11 @@ import chai from 'chai';
 // Required for loading module.js
 prunk.mock('./css/query-editor.css!', 'no css, dude.');
 prunk.mock('app/plugins/sdk', {
-  QueryCtrl: null
+  QueryCtrl: class empty {
+    constructor() {
+      this.target = {};
+    }
+  }
 });
 
 // Setup jsdom
