@@ -23,6 +23,9 @@ Common.endpoints = {
   'tableSchema': '/schema'
 };
 Common.allTableTableName = 'StatTable.FieldNames.fields';
+Common.annotationTs = 'MessageTs';
+Common.annotationCol = ['MessageTS', 'Source', 'ModuleId', 'Category', 'Messagetype', 'SequenceNum', 'Xmlmessage', 'Type'];
+Common.annotationTable = 'MessageTable';
 Common.strings = {
   'selectTable': 'Select Table',
   'selectColumn': 'Select Field'
@@ -128,4 +131,23 @@ Common.transform = function (targetObj) {
     });
   }
   return targetObj;
+};
+Common.processAnnotationResult = function (result, options) {
+  const newData = [];
+  _.each(result.data.value, (d, i) => {
+    const singleAnnotation = {
+      annotation: {
+        name: options.name,
+        enabled: options.enable,
+        datasource: options.datasource
+      },
+      title: d[options.titleMapping],
+      time: d[Common.annotationTs] / 1000,
+      text: d[options.textMapping],
+      tags: d[options.tagMapping]
+    };
+    newData.push(singleAnnotation);
+  });
+  console.log(newData);
+  return newData;
 };

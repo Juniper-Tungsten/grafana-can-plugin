@@ -91,25 +91,33 @@ export class GenericDatasource {
   }
 
   annotationQuery(options) {
-    let query = this.templateSrv.replace(options.annotation.query, {}, 'glob');
-    let annotationQuery = {
-      range: options.range,
-      annotation: {
-        name: options.annotation.name,
-        datasource: options.annotation.datasource,
-        enable: options.annotation.enable,
-        iconColor: options.annotation.iconColor,
-        query: query
-      },
-      rangeRaw: options.rangeRaw
+    if (!options.annotation || !options.annotation.enable) {
+      this.q.when([]);
+    }
+    // console.log(options.annotation.whereArray);
+    let validWhere = Common.filterQueryFields(options.annotation).where;
+    let validFilter = Common.filterQueryFields({
+      advanced: options.annotation.advanced,
+      whereArray: options.annotation.filterArray}).where;
+    validWhere = Common.transform({where: validWhere}).where || [[{'name': 'Source', 'value': '', 'op': 7}]];
+    validFilter = Common.transform({where: validFilter}).where;
+    // let query = this.templateSrv.replace(options.annotation.query, {}, 'glob');
+    let annotationObj = {
+      // sort: 1,
+      start_time: Common.toDate(options.range.from),
+      end_time: Common.toDate(options.range.to),
+      // sort_fields: [Common.annotationTs],
+      select_fields: Common.annotationCol,
+      table: Common.annotationTable,
+      where: validWhere
     };
-
-    return this.backendSrv.datasourceRequest({
-      url: this.url + '/annotations',
-      method: 'POST',
-      data: annotationQuery
-    }).then((result) => {
-      return result.data;
+    if (validFilter) { annotationObj.filter = validFilter; }
+    let paramObj = {
+      url: this.url + Common.endpoints.query,
+      data: annotationObj
+    };
+    return this.analyticsQuery(paramObj).then((res) => {
+      return Common.processAnnotationResult(res, options.annotation);
     });
   }
 
