@@ -20,7 +20,8 @@ Common.endpoints = {
   'query': '/analytics/query',
   'tables': '/analytics/tables',
   'table': '/analytics/table',
-  'tableSchema': '/schema'
+  'tableSchema': '/schema',
+  'alarm': '/analytics/uves'
 };
 Common.allTableTableName = 'StatTable.FieldNames.fields';
 Common.annotationTs = 'MessageTS';
@@ -134,20 +135,56 @@ Common.transform = function (targetObj) {
 };
 Common.processAnnotationResult = function (result, options) {
   const newData = [];
-  _.each(result.data.value, (d, i) => {
-    const singleAnnotation = {
-      annotation: {
-        name: options.name,
-        enabled: options.enable,
-        datasource: options.datasource
-      },
-      title: d[options.titleMapping],
-      time: d[Common.annotationTs] / 1000,
-      text: d[options.textMapping],
-      tags: d[options.tagMapping]
-    };
-    newData.push(singleAnnotation);
-  });
-  console.log(newData);
+  if (result.status !== 200) { return newData; }
+  if (options.alarm) {
+    if (result.data.hasOwnProperty('UVEAlarms')) {
+      _.each(result.data.UVEAlarms.alarms, (d, i) => {
+        const singleAnnotation = {
+          annotation: {
+            name: options.name,
+            enabled: options.enable,
+            datasource: options.datasource
+          },
+          title: options.alarmUVEName + '\\' + options.alarmNodeName,
+          time: d.timestamp / 1000,
+          text: 'Description: ' + d.description,
+          tags: ['Severity: ' + d.severity, d.type]
+        };
+        newData.push(singleAnnotation);
+      });
+    } else if (result.data.hasOwnProperty('value')) {
+      _.each(result.data.value, (node, i) => {
+        _.each(node.value.UVEAlarms.alarms, (d, j) => {
+          const singleAnnotation = {
+            annotation: {
+              name: options.name,
+              enabled: options.enable,
+              datasource: options.datasource
+            },
+            title: node.name,
+            time: d.timestamp / 1000,
+            text: 'Description: ' + d.description,
+            tags: ['Severity: ' + d.severity, d.type]
+          };
+          newData.push(singleAnnotation);
+        });
+      });
+    }
+  } else {
+    _.each(result.data.value, (d, i) => {
+      const singleAnnotation = {
+        annotation: {
+          name: options.name,
+          enabled: options.enable,
+          datasource: options.datasource
+        },
+        title: d[options.titleMapping],
+        time: d[Common.annotationTs] / 1000,
+        text: d[options.textMapping],
+        tags: d[options.tagMapping]
+      };
+      newData.push(singleAnnotation);
+    });
+  }
   return newData;
 };

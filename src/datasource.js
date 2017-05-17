@@ -94,25 +94,38 @@ export class GenericDatasource {
     if (!options.annotation || !options.annotation.enable) {
       this.q.when([]);
     }
-    // console.log(options.annotation.whereArray);
-    let validWhere = Common.filterQueryFields(options.annotation).where;
-    let validFilter = Common.filterQueryFields({
-      advanced: options.annotation.advanced,
-      whereArray: options.annotation.filterArray}).where;
-    validWhere = Common.transform({where: validWhere}).where || [[{'name': 'Source', 'value': '', 'op': 7}]];
-    validFilter = Common.transform({where: validFilter}).where;
-    // let query = this.templateSrv.replace(options.annotation.query, {}, 'glob');
-    let annotationObj = {
-      start_time: Common.toDate(options.range.from),
-      end_time: Common.toDate(options.range.to),
-      select_fields: Common.annotationCol,
-      table: Common.annotationTable,
-      where: validWhere
-    };
-    if (validFilter) { annotationObj.filter = validFilter; }
+    let annotationObj = {};
+    let reqMethod = 'POST';
+    let reqUrl = this.url + Common.endpoints.query;
+    if (options.annotation.alarm) {
+      reqUrl = this.url +
+                Common.endpoints.alarm +
+                '/' +
+                options.annotation.alarmUVEName +
+                '/' +
+                options.annotation.alarmNodeName +
+                '?cfilt=UVEAlarms';
+      reqMethod = 'GET';
+    } else {
+      let validWhere = Common.filterQueryFields(options.annotation).where;
+      let validFilter = Common.filterQueryFields({
+        advanced: options.annotation.advanced,
+        whereArray: options.annotation.filterArray}).where;
+      validWhere = Common.transform({where: validWhere}).where || [[{'name': 'Source', 'value': '', 'op': 7}]];
+      validFilter = Common.transform({where: validFilter}).where;
+      annotationObj = {
+        start_time: Common.toDate(options.range.from),
+        end_time: Common.toDate(options.range.to),
+        select_fields: Common.annotationCol,
+        table: Common.annotationTable,
+        where: validWhere
+      };
+      if (validFilter) { annotationObj.filter = validFilter; }
+    }
     let paramObj = {
-      url: this.url + Common.endpoints.query,
-      data: annotationObj
+      url: reqUrl,
+      data: annotationObj,
+      method: reqMethod
     };
     return this.analyticsQuery(paramObj).then((res) => {
       return Common.processAnnotationResult(res, options.annotation);
