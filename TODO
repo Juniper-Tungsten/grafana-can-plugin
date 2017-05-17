@@ -1,6 +1,6 @@
 1. Explore better auth token management 
 2. Learn to configure keystone for CORS. -- postponed
-3. Explore annotation query implementation
+3. Explore annotation query implementation -- done
 4. Write proper lintrc -- done
 5. update the mochatests. -- done
 6. It is possible we may not require the datemath parser. So remove it from packaga.json and library js -- done

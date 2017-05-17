@@ -147,7 +147,7 @@ Common.processAnnotationResult = function (result, options) {
           },
           title: options.alarmUVEName + '\\' + options.alarmNodeName,
           time: d.timestamp / 1000,
-          text: 'Description: ' + d.description,
+          text: d.description,
           tags: ['Severity: ' + d.severity, d.type]
         };
         newData.push(singleAnnotation);
@@ -163,7 +163,7 @@ Common.processAnnotationResult = function (result, options) {
             },
             title: node.name,
             time: d.timestamp / 1000,
-            text: 'Description: ' + d.description,
+            text: d.description,
             tags: ['Severity: ' + d.severity, d.type]
           };
           newData.push(singleAnnotation);
