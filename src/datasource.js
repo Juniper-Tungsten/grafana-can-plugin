@@ -103,10 +103,8 @@ export class GenericDatasource {
     validFilter = Common.transform({where: validFilter}).where;
     // let query = this.templateSrv.replace(options.annotation.query, {}, 'glob');
     let annotationObj = {
-      // sort: 1,
       start_time: Common.toDate(options.range.from),
       end_time: Common.toDate(options.range.to),
-      // sort_fields: [Common.annotationTs],
       select_fields: Common.annotationCol,
       table: Common.annotationTable,
       where: validWhere

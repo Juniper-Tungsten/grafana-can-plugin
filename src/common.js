@@ -23,7 +23,7 @@ Common.endpoints = {
   'tableSchema': '/schema'
 };
 Common.allTableTableName = 'StatTable.FieldNames.fields';
-Common.annotationTs = 'MessageTs';
+Common.annotationTs = 'MessageTS';
 Common.annotationCol = ['MessageTS', 'Source', 'ModuleId', 'Category', 'Messagetype', 'SequenceNum', 'Xmlmessage', 'Type'];
 Common.annotationTable = 'MessageTable';
 Common.strings = {
