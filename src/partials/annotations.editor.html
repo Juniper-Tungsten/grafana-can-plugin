@@ -46,7 +46,7 @@
       <div class="gf-form-group" ng-init="ctrl.annotation.filterArray = ctrl.annotation.filterArray || []">
         <div class="gf-form">
           <span class="gf-form-label width-7">Filter</span>
-          <button class="gf-form-input max-width-10" type="button"  ng-click="ctrl.annotation.filterArray.push([{}])">+ Add Row</button>
+          <button class="gf-form-input max-width-10" type="button"  ng-click="ctrl.annotation.filterArray.push({})">+ Add Row</button>
         </div>
         <div class="gf-form-group">
           <div ng-repeat="andRow in ctrl.annotation.filterArray" class="gf-form-inline">

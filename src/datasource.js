@@ -92,7 +92,7 @@ export class GenericDatasource {
 
   annotationQuery(options) {
     if (!options.annotation || !options.annotation.enable) {
-      this.q.when([]);
+      return this.q.when([]);
     }
     let annotationObj = {};
     let reqMethod = 'POST';
@@ -110,7 +110,7 @@ export class GenericDatasource {
       let validWhere = Common.filterQueryFields(options.annotation).where;
       let validFilter = Common.filterQueryFields({
         advanced: options.annotation.advanced,
-        whereArray: options.annotation.filterArray}).where;
+        whereArray: [options.annotation.filterArray]}).where;
       validWhere = Common.transform({where: validWhere}).where || [[{'name': 'Source', 'value': '', 'op': 7}]];
       validFilter = Common.transform({where: validFilter}).where;
       annotationObj = {
@@ -120,7 +120,7 @@ export class GenericDatasource {
         table: Common.annotationTable,
         where: validWhere
       };
-      if (validFilter) { annotationObj.filter = validFilter; }
+      if (validFilter) { annotationObj.filter = validFilter[0]; }
     }
     let paramObj = {
       url: reqUrl,
