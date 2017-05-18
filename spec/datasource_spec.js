@@ -138,6 +138,172 @@ describe('Contail Analytics Datasource', function () {
     });
   });
 
+  it('[annotationQuery] should return empty array when annotation is disabled', function (done) {
+    let input = { annotation: {enable: false} };
+    ctx.ds.annotationQuery(input).then((res) => {
+      expect(res).to.deep.equal([]);
+      done();
+    });
+  });
+
+  it('[annotationQuery] should return valid array for alarm annotation', function (done) {
+    ctx.ds.url = 'customCANurl';
+    let input = {
+      annotation: {
+        enable: true,
+        alarm: true,
+        alarmUVEName: 'someUveName',
+        alarmNodeName: 'someNodeName'
+      }
+    };
+    let datasourceOutput = ctx.$q.when({
+      status: 200,
+      data: {
+        'UVEAlarms': {
+          'alarms': [
+            {
+              'severity': 0,
+              'timestamp': 1494526922339119,
+              'ack': false,
+              'token': 'eyJ0aW1lc3RhbXAiOiAxNDk0NTI2OTIyMzM5MTE5LCAiaHR0cF9wb3J0IjogNTk5NSwgImhvc3RfaXAiOiAiMTAuMjA5LjEuMTMifQ==',
+              'type': 'default-global-system-config:system-defined-process-connectivity',
+              'description': 'Process(es) reporting as non-functional.'
+            },
+            {
+              'severity': 0,
+              'timestamp': 1494526413491767,
+              'ack': false,
+              'token': 'eyJ0aW1lc3RhbXAiOiAxNDk0NTI2NDEzNDkxNzY3LCAiaHR0cF9wb3J0IjogNTk5NSwgImhvc3RfaXAiOiAiMTAuMjA5LjEuMTMifQ==',
+              'type': 'default-global-system-config:system-defined-core-files',
+              'description': 'A core file has been generated on the node.'
+            }
+          ]
+        }
+      }
+    });
+    let datasourceRequestMock = sinon.stub();
+    datasourceRequestMock.returns(datasourceOutput);
+    ctx.backendSrv.datasourceRequest = datasourceRequestMock;
+    ctx.ds.annotationQuery(input).then((res) => {
+      expect(datasourceRequestMock.calledTwice).to.be.true;
+      expect(datasourceRequestMock.getCall(1).args[0].method).to.equal('GET');
+      expect(datasourceRequestMock.getCall(1).args[0].url).to.equal('customCANurl/analytics/uves/someUveName/someNodeName?cfilt=UVEAlarms');
+      done();
+    });
+  });
+
+  it('[annotationQuery] should return valid array for messageTable annotation', function (done) {
+    ctx.ds.url = 'customCANurl';
+    let input = {
+      annotation: {
+        enable: true,
+        advanced: true,
+        name: 'someName',
+        datasource: 'someDs',
+        titleMapping: 'Source',
+        textMapping: 'Xmlmessage',
+        tagMapping: 'Level',
+        whereArray: [
+          [
+            {'name': 'Category', 'op': 'EQUAL', 'value': 'contrail-discovery'},
+            {'name': 'Level', 'op': 'EQUAL', 'value': '6'}
+          ],
+          [
+            {'name': 'Category', 'op': 'EQUAL', 'value': 'contrail-analytics-api'},
+            {'name': 'Level', 'op': 'IN_RANGE', 'value': '1', 'value2': '5'}
+          ]
+        ],
+        filterArray: [
+          {'name': 'Source', 'op': 'EQUAL', 'value': 'some', 'value2': 'error'},
+          {'name': 'Category', 'op': 'IN_RANGE', 'value': 'no', 'value2': 'yup'}
+        ]
+
+      },
+      range: {
+        from: { _d: 132442},
+        to: { _d: 342345}
+      }
+    };
+    // done();
+    let expectedFilter = [
+      {'name': 'Source', 'op': 1, 'value': 'some', 'value2': 'error'},
+      {'name': 'Category', 'op': 3, 'value': 'no', 'value2': 'yup'}
+    ];
+    let expectedWhere = [
+      [
+        {'name': 'Category', 'op': 1, 'value': 'contrail-discovery', 'value2': undefined},
+        {'name': 'Level', 'op': 1, 'value': '6', 'value2': undefined}
+      ],
+      [
+        {'name': 'Category', 'op': 1, 'value': 'contrail-analytics-api', 'value2': undefined},
+        {'name': 'Level', 'op': 3, 'value': '1', 'value2': '5'}
+      ]
+    ];
+    let analyticsQuerySpy = sinon.spy(ctx.ds, 'analyticsQuery');
+    let datasourceOutput = ctx.$q.when({
+      status: 200,
+      data: {
+        value: [
+          {
+            'Category': '__default__',
+            'Level': 6,
+            'MessageTS': 1495035030607132,
+            'Messagetype': 'discServiceLog',
+            'ModuleId': 'contrail-discovery',
+            'SequenceNum': 1511639,
+            'Source': 'choc-esxi6-a-vm4',
+            'Type': 1,
+            'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-topology,st=Collector&gt;  subs service=choc-esxi6-a-vm4, assign=2, count=2</log_msg></discServiceLog>'
+          },
+          {
+            'Category': '__default__',
+            'Level': 6,
+            'MessageTS': 1495035031416257,
+            'Messagetype': 'discServiceLog',
+            'ModuleId': 'contrail-discovery',
+            'SequenceNum': 1511640,
+            'Source': 'choc-esxi6-a-vm4',
+            'Type': 1,
+            'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-vrouter-nodemgr,st=Collector&gt; del sid choc-esxi6-a-vm4, policy=chash, expired=True</log_msg></discServiceLog>'
+          },
+          {
+            'Category': '__default__',
+            'Level': 6,
+            'MessageTS': 1495035031418099,
+            'Messagetype': 'discServiceLog',
+            'ModuleId': 'contrail-discovery',
+            'SequenceNum': 1511641,
+            'Source': 'choc-esxi6-a-vm4',
+            'Type': 1,
+            'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-vrouter-nodemgr,st=Collector&gt;  subs service=choc-esxi6-a-vm4, assign=2, count=2</log_msg></discServiceLog>'
+          },
+          {
+            'Category': '__default__',
+            'Level': 6,
+            'MessageTS': 1495035031737203,
+            'Messagetype': 'discServiceLog',
+            'ModuleId': 'contrail-discovery',
+            'SequenceNum': 1511642,
+            'Source': 'choc-esxi6-a-vm4',
+            'Type': 1,
+            'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-snmp-collector,st=ApiServer&gt;  assign service=choc-esxi6-a-vm4, info={\'port\': \'9100\', \'ip-address\': \'10.209.1.13\'}</log_msg></discServiceLog>'
+          }
+        ]
+      }
+    });
+    let datasourceRequestMock = sinon.stub();
+    datasourceRequestMock.returns(datasourceOutput);
+    ctx.backendSrv.datasourceRequest = datasourceRequestMock;
+    ctx.ds.annotationQuery(input).then((res) => {
+      expect(analyticsQuerySpy.getCall(0).args[0].data.filter).to.deep.equal(expectedFilter);
+      expect(analyticsQuerySpy.getCall(0).args[0].data.where).to.deep.equal(expectedWhere);
+      expect(datasourceRequestMock.calledTwice).to.be.true;
+      expect(datasourceRequestMock.getCall(1).args[0].method).to.equal('POST');
+      expect(datasourceRequestMock.getCall(1).args[0].url).to.equal('customCANurl/analytics/query');
+      done();
+    });
+  });
+
   it('[setAuthToken] should set and return auth token', function (done) {
     let datasourceRequestMock = sinon.stub();
     let retObj = ctx.$q.when({

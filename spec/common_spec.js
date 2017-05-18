@@ -191,7 +191,7 @@ describe('common.js', function () {
       {'hide': false, 'advanced': true, 'table': 'someTable', 'selCol': 'someCol', 'where': null, 'filter': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000}, 'whereArray': [[]], 'filterObj': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000}},
       {'hide': false, 'advanced': true, 'table': 'someTable', 'selCol': 'someCol', 'where': null, 'filter': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000}, 'whereArray': [[{op: 'range_op', name: 'someName', value: 1}]], 'filterObj': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000}}
     ];
-    let testFunc = function(index) {
+    let testFunc = function (index) {
       if (index > expectedRes.length - 1) {
         return done;
       }
@@ -225,8 +225,8 @@ describe('common.js', function () {
         'filter': [{name: 'someCol', value: 1, op: 6, value2: undefined}],
         'where': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 6}, {'op': 5, 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 6, 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]}
     ];
-    let testFunc = function(index) {
-      if(index >= expectedRes.length) {
+    let testFunc = function (index) {
+      if (index >= expectedRes.length) {
         return done;
       }
       let res = Common.transform(inputs[index]);
@@ -234,5 +234,188 @@ describe('common.js', function () {
       return testFunc(index + 1);
     };
     testFunc(0)();
+  });
+
+  it('[processAnnotationResult] should return valid annotaion object', function (done) {
+    let result = {status: 500};
+    let options = {
+      name: 'someName',
+      enable: true,
+      datasource: 'someDs',
+      titleMapping: 'Source',
+      textMapping: 'Xmlmessage',
+      tagMapping: 'Level'
+    };
+    let res = Common.processAnnotationResult(result, options);
+    let expectedRes = [];
+    expect(res).to.deep.equal(expectedRes);
+    result = {
+      status: 200,
+      data: {
+        'UVEAlarms': {
+          'alarms': [
+            {
+              'severity': 0,
+              'timestamp': 1494526922339119,
+              'ack': false,
+              'token': 'eyJ0aW1lc3RhbXAiOiAxNDk0NTI2OTIyMzM5MTE5LCAiaHR0cF9wb3J0IjogNTk5NSwgImhvc3RfaXAiOiAiMTAuMjA5LjEuMTMifQ==',
+              'type': 'default-global-system-config:system-defined-process-connectivity',
+              'description': 'Process(es) reporting as non-functional.'
+            },
+            {
+              'severity': 0,
+              'timestamp': 1494526413491767,
+              'ack': false,
+              'token': 'eyJ0aW1lc3RhbXAiOiAxNDk0NTI2NDEzNDkxNzY3LCAiaHR0cF9wb3J0IjogNTk5NSwgImhvc3RfaXAiOiAiMTAuMjA5LjEuMTMifQ==',
+              'type': 'default-global-system-config:system-defined-core-files',
+              'description': 'A core file has been generated on the node.'
+            }
+          ]
+        }
+      }
+    };
+    options.alarm = true;
+    options.alarmUVEName = 'someUVE';
+    options.alarmNodeName = 'someNode';
+    res = Common.processAnnotationResult(result, options);
+    expectedRes = [{
+      annotation:
+      { name: 'someName',
+        enabled: true,
+        datasource: 'someDs'
+      },
+      title: 'someUVE\\someNode',
+      time: 1494526922339.119,
+      text: 'Process(es) reporting as non-functional.',
+      tags:
+      [ 'Severity: 0',
+        'default-global-system-config:system-defined-process-connectivity' ]
+    }, {
+      annotation: {
+        name: 'someName',
+        enabled: true,
+        datasource: 'someDs'
+      },
+      title: 'someUVE\\someNode',
+      time: 1494526413491.767,
+      text: 'A core file has been generated on the node.',
+      tags:
+      [ 'Severity: 0',
+        'default-global-system-config:system-defined-core-files' ]
+    }
+    ];
+    expect(res).to.deep.equal(expectedRes);
+    result.data = {
+      value: [{
+        name: 'nodeName',
+        value: result.data
+      }, {
+        name: 'nodeName2',
+        value: result.data
+      }
+      ]
+    };
+    expectedRes = [ { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+      title: 'nodeName',
+      time: 1494526922339.119,
+      text: 'Process(es) reporting as non-functional.',
+      tags:
+      [ 'Severity: 0',
+        'default-global-system-config:system-defined-process-connectivity' ] },
+    { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+      title: 'nodeName',
+      time: 1494526413491.767,
+      text: 'A core file has been generated on the node.',
+      tags:
+      [ 'Severity: 0',
+        'default-global-system-config:system-defined-core-files' ] },
+    { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+      title: 'nodeName2',
+      time: 1494526922339.119,
+      text: 'Process(es) reporting as non-functional.',
+      tags:
+      [ 'Severity: 0',
+        'default-global-system-config:system-defined-process-connectivity' ] },
+    { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+      title: 'nodeName2',
+      time: 1494526413491.767,
+      text: 'A core file has been generated on the node.',
+      tags:
+      [ 'Severity: 0',
+        'default-global-system-config:system-defined-core-files' ] } ];
+    res = Common.processAnnotationResult(result, options);
+    expect(res).to.deep.equal(expectedRes);
+    options.alarm = false;
+    result.data.value = [
+      {
+        'Category': '__default__',
+        'Level': 6,
+        'MessageTS': 1495035030607132,
+        'Messagetype': 'discServiceLog',
+        'ModuleId': 'contrail-discovery',
+        'SequenceNum': 1511639,
+        'Source': 'choc-esxi6-a-vm4',
+        'Type': 1,
+        'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-topology,st=Collector&gt;  subs service=choc-esxi6-a-vm4, assign=2, count=2</log_msg></discServiceLog>'
+      },
+      {
+        'Category': '__default__',
+        'Level': 6,
+        'MessageTS': 1495035031416257,
+        'Messagetype': 'discServiceLog',
+        'ModuleId': 'contrail-discovery',
+        'SequenceNum': 1511640,
+        'Source': 'choc-esxi6-a-vm4',
+        'Type': 1,
+        'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-vrouter-nodemgr,st=Collector&gt; del sid choc-esxi6-a-vm4, policy=chash, expired=True</log_msg></discServiceLog>'
+      },
+      {
+        'Category': '__default__',
+        'Level': 6,
+        'MessageTS': 1495035031418099,
+        'Messagetype': 'discServiceLog',
+        'ModuleId': 'contrail-discovery',
+        'SequenceNum': 1511641,
+        'Source': 'choc-esxi6-a-vm4',
+        'Type': 1,
+        'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-vrouter-nodemgr,st=Collector&gt;  subs service=choc-esxi6-a-vm4, assign=2, count=2</log_msg></discServiceLog>'
+      },
+      {
+        'Category': '__default__',
+        'Level': 6,
+        'MessageTS': 1495035031737203,
+        'Messagetype': 'discServiceLog',
+        'ModuleId': 'contrail-discovery',
+        'SequenceNum': 1511642,
+        'Source': 'choc-esxi6-a-vm4',
+        'Type': 1,
+        'Xmlmessage': '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-snmp-collector,st=ApiServer&gt;  assign service=choc-esxi6-a-vm4, info={\'port\': \'9100\', \'ip-address\': \'10.209.1.13\'}</log_msg></discServiceLog>'
+      }
+    ];
+    expectedRes = [
+      { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+        title: 'choc-esxi6-a-vm4',
+        time: 1495035030607.132,
+        text: '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-topology,st=Collector&gt;  subs service=choc-esxi6-a-vm4, assign=2, count=2</log_msg></discServiceLog>',
+        tags: 6 },
+      { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+        title: 'choc-esxi6-a-vm4',
+        time: 1495035031416.257,
+        text: '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-vrouter-nodemgr,st=Collector&gt; del sid choc-esxi6-a-vm4, policy=chash, expired=True</log_msg></discServiceLog>',
+        tags: 6 },
+      { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+        title: 'choc-esxi6-a-vm4',
+        time: 1495035031418.099,
+        text: '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-vrouter-nodemgr,st=Collector&gt;  subs service=choc-esxi6-a-vm4, assign=2, count=2</log_msg></discServiceLog>',
+        tags: 6 },
+      { annotation: { name: 'someName', enabled: true, datasource: 'someDs' },
+        title: 'choc-esxi6-a-vm4',
+        time: 1495035031737.203,
+        text: '<discServiceLog type=\'sandesh\'><log_msg type=\'string\' identifier=\'1\'>&lt;cl=choc-esxi6-a-vm4:contrail-snmp-collector,st=ApiServer&gt;  assign service=choc-esxi6-a-vm4, info={\'port\': \'9100\', \'ip-address\': \'10.209.1.13\'}</log_msg></discServiceLog>',
+        tags: 6 }
+    ];
+    res = Common.processAnnotationResult(result, options);
+    expect(res).to.deep.equal(expectedRes);
+    done();
   });
 });
