@@ -54,7 +54,7 @@
               <div class="gf-form-select-wrapper max-width-8">
                 <select class="gf-form-input" 
                   ng-model="andRow.name"
-                  ng-init="andRow.name=indexCols[0]" 
+                  ng-init="andRow.name = andRow.name || indexCols[0]" 
                   ng-options="x for x in indexCols">
                 </select>
                   <!--ng-init="andRow.name = andRow.name || ctrl.getIndexCols()[0]">-->
@@ -87,7 +87,7 @@
               <div class="gf-form-select-wrapper max-width-8">
                 <select class="gf-form-input" 
                   ng-model="andRow.name"
-                  ng-init="andRow.name=indexCols[0]" 
+                  ng-init="andRow.name = andRow.name || indexCols[0]" 
                   ng-options="x for x in indexCols">
                 </select>
                   <!--ng-init="andRow.name = andRow.name || ctrl.getIndexCols()[0]">-->

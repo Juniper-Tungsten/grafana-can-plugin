@@ -26,6 +26,7 @@ Common.endpoints = {
 Common.allTableTableName = 'StatTable.FieldNames.fields';
 Common.annotationTs = 'MessageTS';
 Common.annotationCol = ['MessageTS', 'Source', 'ModuleId', 'Category', 'Messagetype', 'SequenceNum', 'Xmlmessage', 'Type'];
+Common.annotationColAll = ['MessageTS', 'Source', 'ModuleId', 'Category', 'Level', 'InstanceId', 'NodeType', 'Messagetype', 'Xmlmessage'];
 Common.annotationTable = 'MessageTable';
 Common.strings = {
   'selectTable': 'Select Table',

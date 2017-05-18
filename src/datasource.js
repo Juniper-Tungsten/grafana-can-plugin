@@ -116,7 +116,7 @@ export class GenericDatasource {
       annotationObj = {
         start_time: Common.toDate(options.range.from),
         end_time: Common.toDate(options.range.to),
-        select_fields: Common.annotationCol,
+        select_fields: Common.annotationColAll,
         table: Common.annotationTable,
         where: validWhere
       };
