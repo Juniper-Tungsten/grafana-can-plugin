@@ -27,7 +27,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.target.table = this.target.table || Common.strings.selectTable;
     // TODO: support the table view.
     // TODO: support rawQuery
-    this.target.type = this.target.type || 'timeseries';
+    this.target.type = this.target.type || 'timeserie';
     this.target.pCols = this.target.pCols || false;
     this.target.selCol = this.target.selCol || null;
     this.target.allCols = this.target.allCols || null;

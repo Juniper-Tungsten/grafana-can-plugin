@@ -14,7 +14,7 @@
 
 import {GenericDatasource} from './datasource';
 import {GenericDatasourceQueryCtrl} from './query_ctrl';
-
+import {GenericAnnotationsQueryCtrl} from './annotation_ctrl';
 class GenericConfigCtrl {
   constructor($scope) {
     this.current.url = this.current.url;
@@ -30,8 +30,8 @@ GenericConfigCtrl.templateUrl = 'partials/config.html';
 class GenericQueryOptionsCtrl {}
 GenericQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
 
-class GenericAnnotationsQueryCtrl {}
-GenericAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
+// class GenericAnnotationsQueryCtrl {}
+// GenericAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
 
 export {
   GenericDatasource as Datasource,

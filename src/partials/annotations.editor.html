@@ -30,7 +30,7 @@
 </div>
 <div ng-if="!ctrl.annotation.alarm">
   <h5 class="section-heading">Query</h5>
-  <div class="gf-form-group" ng-init="indexCols=['Source', 'ModuleId', 'Category', 'Level', 'Messagetype', 'Keyword']">
+  <div class="gf-form-group">
     <div class="gf-form-inline">
       <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.annotation.query" ng-init="ctrl.annotation.query='SELECT * FROM MessageTable'" readonly>
       <gf-from-switch class="gf-form" label="Advanced">
@@ -42,7 +42,7 @@
       </gf-from-switch>
     </div>
   </div>
-  <div class="gf-form-group" ng-if="ctrl.annotation.advanced" ng-init="operators=['EQUAL', 'NOT_EQUAL', 'IN_RANGE', 'NOT_IN_RANGE', 'LEQ', 'GEQ', 'PREFIX', 'REGEX_MATCH']">
+  <div class="gf-form-group" ng-if="ctrl.annotation.advanced" ng-init="operators=ctrl.getOperators()">
       <div class="gf-form-group" ng-init="ctrl.annotation.filterArray = ctrl.annotation.filterArray || []">
         <div class="gf-form">
           <span class="gf-form-label width-7">Filter</span>
@@ -54,10 +54,9 @@
               <div class="gf-form-select-wrapper max-width-8">
                 <select class="gf-form-input" 
                   ng-model="andRow.name"
-                  ng-init="andRow.name = andRow.name || indexCols[0]" 
-                  ng-options="x for x in indexCols">
+                  ng-init="andRow.name = andRow.name || ctrl.getAllCols()[0]" 
+                  ng-options="x for x in ctrl.getAllCols()">
                 </select>
-                  <!--ng-init="andRow.name = andRow.name || ctrl.getIndexCols()[0]">-->
               </div>
               <div class="gf-form-select-wrapper max-width-8">
                 <select class="gf-form-input" 
@@ -87,10 +86,9 @@
               <div class="gf-form-select-wrapper max-width-8">
                 <select class="gf-form-input" 
                   ng-model="andRow.name"
-                  ng-init="andRow.name = andRow.name || indexCols[0]" 
-                  ng-options="x for x in indexCols">
+                  ng-init="andRow.name = andRow.name || ctrl.getIndexCols()[0]" 
+                  ng-options="x for x in ctrl.getIndexCols()">
                 </select>
-                  <!--ng-init="andRow.name = andRow.name || ctrl.getIndexCols()[0]">-->
               </div>
               <div class="gf-form-select-wrapper max-width-8">
                 <select class="gf-form-input" 
