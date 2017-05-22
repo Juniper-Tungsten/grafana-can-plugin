@@ -13,7 +13,6 @@
 //  limitations under the License.
 
 import _ from 'lodash';
-import {QueryCtrl} from 'app/plugins/sdk';
 import './css/query-editor.css!';
 import Common from './common';
 
@@ -21,15 +20,37 @@ export class GenericAnnotationsQueryCtrl {
 
   constructor() {
     this.annontation = {};
+    this.allCols = null;
+    this.indexCols = null;
+    this.indexCols = this.getIndexCols();
+    this.allCols = this.getAllCols();
   }
   getOperators() {
     return Common.allOperators;
   }
   getIndexCols() {
-    return Common.annotationColIndex;
+    if (this.indexCols)
+      return this.indexCols;
+    let selectedTable = Common.annotationTable;
+    return this.datasource.getColumns(selectedTable).then((result) => {
+      this.indexCols = [];
+      _.each(result.unfiltered, (d, i) => {
+        if (d.index === true) { this.indexCols.push(d.text); }
+      });
+      return this.indexCols;
+    });
   }
   getAllCols() {
-    return Common.annotationColAll;
+    if (this.allCols)
+      return this.allCols;
+    let selectedTable = Common.annotationTable;
+    return this.datasource.getColumns(selectedTable).then((result) => {
+      this.allCols = [];
+      _.each(result.unfiltered, (d, i) => {
+        this.allCols.push(d.text);
+      });
+      return this.allCols;
+    });
   }
 
   // getRandomId() {

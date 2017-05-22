@@ -11,7 +11,7 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.-->
-<gf-from-switch class="gf-form" label="Advanced">
+<gf-from-switch class="gf-form" label="Alarm">
   <label class="gf-form-label"> Alarm </label>
   <div class="gf-form-switch">
     <input id="alarm-1" type="checkbox" ng-model="ctrl.annotation.alarm">
@@ -113,12 +113,30 @@
   <div class="gf-form-group">
     <div class="gf-form-inline">
           <div class="gf-form">
-            <span class="gf-form-label width-7">Title</span> 
-            <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.annotation.titleMapping">
+            <span class="gf-form-label width-7">Title</span>
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="ctrl.annotation.titleMapping"
+                ng-init="ctrl.annotation.titleMapping = ctrl.annotation.titleMapping || ctrl.getAllCols()[0]" 
+                ng-options="x for x in ctrl.getAllCols()">
+              </select>
+            </div>
             <span class="gf-form-label width-7">Tags</span> 
-            <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.annotation.tagMapping">
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="ctrl.annotation.tagMapping"
+                ng-init="ctrl.annotation.tagMapping = ctrl.annotation.tagMapping || ctrl.getAllCols()[0]" 
+                ng-options="x for x in ctrl.getAllCols()">
+              </select>
+            </div>
             <span class="gf-form-label width-7">Text</span> 
-            <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.annotation.textMapping">
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="ctrl.annotation.textMapping"
+                ng-init="ctrl.annotation.textMapping = ctrl.annotation.textMapping || ctrl.getAllCols()[0]" 
+                ng-options="x for x in ctrl.getAllCols()">
+              </select>
+            </div>
           </div>
       </div>
   </div>
