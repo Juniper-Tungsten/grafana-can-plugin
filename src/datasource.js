@@ -192,11 +192,11 @@ export class GenericDatasource {
     let unfiltered = [];
     let allCols = schemaResult.data.columns;
 
-    schemaResult.data.columns = _.filter(schemaResult.data.columns, (col) => {
+    let filteredCols = _.filter(schemaResult.data.columns, (col) => {
       return Common.numTypes.indexOf(col.datatype.toLowerCase()) > -1 &&
              Common.filteredCol.indexOf(col.name.toLowerCase()) < 0;
     });
-    _.each(schemaResult.data.columns, (d, i) => {
+    _.each(filteredCols, (d, i) => {
       filtered[i] = {text: d.name, type: d.datatype, value: i, index: d.index};
     });
     _.each(allCols, (d, i) => {
