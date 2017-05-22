@@ -52,13 +52,6 @@ export class GenericAnnotationsQueryCtrl {
       return this.allCols;
     });
   }
-
-  // getRandomId() {
-  //   // TODO: Solve this using the tabindex of the pointer a element up in the
-  //   // parent hierarchy.
-  //   this.randomId = 'chechbox-id' + Math.floor(Math.random() * 10000000);
-  //   return this.randomId;
-  // }
 }
 GenericAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
 
