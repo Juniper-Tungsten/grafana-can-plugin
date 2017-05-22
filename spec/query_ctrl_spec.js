@@ -21,7 +21,6 @@ import Common from '../common';
 
 describe('Query Ctrl', function () {
   let ctx = {};
-  let baseClassStub;
 
   beforeEach(function () {
     // ctx.Common = Common;

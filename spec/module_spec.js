@@ -31,6 +31,23 @@ describe('Module', function () {
     done();
   });
 
+  it('[ConfigCtrl] should have reuse variables from this', function (done) {
+    ConfigCtrl.prototype.current = {
+      url: 'someUrl',
+      jsonData: {
+        keystoneUrl: 'keystoneUrl',
+        canPassword: 'canp',
+        canUsername: 'canU'
+      }
+    };
+    let configCtrlObj = new ConfigCtrl({});
+    expect(configCtrlObj.current.url).to.be.equal('someUrl');
+    expect(configCtrlObj.current.jsonData.keystoneUrl).to.be.equal('keystoneUrl');
+    expect(configCtrlObj.current.jsonData.canPassword).to.be.equal('canp');
+    expect(configCtrlObj.current.jsonData.canUsername).to.be.equal('canU');
+    done();
+  });
+
   it('[QueryOptionsCtrl] should have a templateUrl', function (done) {
     expect(QueryOptionsCtrl.templateUrl).to.not.be.undefined;
     expect(QueryOptionsCtrl.templateUrl).to.be.equal('partials/query.options.html');
