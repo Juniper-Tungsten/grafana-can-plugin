@@ -27,6 +27,7 @@ export class GenericDatasource {
       this.keystoneUrl = instanceSettings.jsonData.keystoneUrl;
       this.canUsername = instanceSettings.jsonData.canUsername;
       this.canPassword = instanceSettings.jsonData.canPassword;
+      this.canTenant = instanceSettings.jsonData.canTenant;
       this.instanceSettings = instanceSettings;
     }
     this.authToken = null;
@@ -56,7 +57,7 @@ export class GenericDatasource {
 
   setAuthToken(forceRenew = false) {
     if (!forceRenew && this.authToken != null && (this.authTokenExpire - Date.now()) / 1000 > 0) { return this.q.when({token: this.authToken}); }
-    let authDict = Common.getAuthDict(this.canUsername, this.canPassword);
+    let authDict = Common.getAuthDict(this.canUsername, this.canPassword, this.canTenant);
     return this.backendSrv.datasourceRequest({
       url: this.keystoneUrl,
       method: 'POST',

@@ -37,7 +37,8 @@ describe('Module', function () {
       jsonData: {
         keystoneUrl: 'keystoneUrl',
         canPassword: 'canp',
-        canUsername: 'canU'
+        canUsername: 'canU',
+        canTenant: 'canTeen'
       }
     };
     let configCtrlObj = new ConfigCtrl({});
@@ -45,6 +46,7 @@ describe('Module', function () {
     expect(configCtrlObj.current.jsonData.keystoneUrl).to.be.equal('keystoneUrl');
     expect(configCtrlObj.current.jsonData.canPassword).to.be.equal('canp');
     expect(configCtrlObj.current.jsonData.canUsername).to.be.equal('canU');
+    expect(configCtrlObj.current.jsonData.canTenant).to.be.equal('canTeen');
     done();
   });
 

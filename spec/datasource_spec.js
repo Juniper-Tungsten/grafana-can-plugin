@@ -32,13 +32,15 @@ describe('Contail Analytics Datasource', function () {
       jsonData: {
         keystoneUrl: 'thisUrl',
         canUsername: 'thisUsername',
-        canPassword: 'thisPassword'
+        canPassword: 'thisPassword',
+        canTenant: 'thisTenant'
       }
     };
     let ds = new Datasource(instanceSettings, ctx.$q, ctx.backendSrv, ctx.templateSrv);
     expect(ds.keystoneUrl).to.be.equal('thisUrl');
     expect(ds.canUsername).to.be.equal('thisUsername');
     expect(ds.canPassword).to.be.equal('thisPassword');
+    expect(ds.canTenant).to.be.equal('thisTenant');
     expect(ds.instanceSettings).to.deep.equal(instanceSettings);
     done();
   });
@@ -317,10 +319,11 @@ describe('Contail Analytics Datasource', function () {
     ctx.ds.keystoneUrl = 'keystoneUrl';
     ctx.ds.canUsername = 'admin';
     ctx.ds.canPassword = 'admin';
+    ctx.ds.canTenant = 'canTenant';
     let authDict = {
       auth: {passwordCredentials: {username: 'admin',
         password: 'admin'},
-        tenantName: 'admin'}
+        tenantName: 'canTenant'}
     };
     ctx.ds.setAuthToken().then((result) => {
       expect(result.token).to.be.equal('id1');

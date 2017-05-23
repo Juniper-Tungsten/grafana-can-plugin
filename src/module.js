@@ -22,6 +22,7 @@ class GenericConfigCtrl {
     this.current.jsonData.keystoneUrl = this.current.jsonData.keystoneUrl;
     this.current.jsonData.canPassword = this.current.jsonData.canPassword;
     this.current.jsonData.canUsername = this.current.jsonData.canUsername;
+    this.current.jsonData.canTenant = this.current.jsonData.canTenant;
   }
 }
 
