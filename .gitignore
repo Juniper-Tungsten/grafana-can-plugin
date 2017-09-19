@@ -3,7 +3,6 @@ node_modules
 npm-debug.log
 yarn-error.log
 yarn.lock
-.vscode/
 coverage/
 .aws-config.json
 awsconfig
@@ -28,6 +27,7 @@ public/css/*.min.css
 *.swp
 .idea/
 *.iml
+.vscode/
 
 /data/*
 /bin/*
@@ -41,3 +41,4 @@ grafana
 # Test artifacts
 /dist/test/
 
+.DS_Store
