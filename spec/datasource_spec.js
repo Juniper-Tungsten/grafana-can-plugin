@@ -689,6 +689,7 @@ describe('Contail Analytics Datasource', function () {
 
   it('[buildQueryParameters] should return valid query object', function (done) {
     let options = {
+      'intervalMs': 15000,
       'targets': [
         {'hide': false, 'table': 'Select Table', 'selCol': 'someCol'},
         {'hide': false, 'table': 'Some table'},
@@ -721,6 +722,12 @@ describe('Contail Analytics Datasource', function () {
           'selCol': 'someCol',
           'advanced': false,
           'filterObj': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000},
+          'whereArray': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 'GEQ'}, {'op': 'LEQ', 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 'GEQ', 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]},
+        {'hide': false,
+          'table': 'someTable',
+          'selCol': 'AVG(someCol)',
+          'advanced': false,
+          'filterObj': {'selFilterOp': 'IN_RANGE', 'filterVal': 9000000, 'filterVal2': 6000000},
           'whereArray': [[{'name': 'process_mem_cpu_usage.cpu_share', 'value': '6000000', 'op': 'GEQ'}, {'op': 'LEQ', 'name': 'process_mem_cpu_usage.cpu_share', 'value': '10000000'}], [{'op': 'GEQ', 'name': 'process_mem_cpu_usage.__key', 'value': '67'}]]}
       ],
       'range': {'to': 'f', 'from': 'f'}
@@ -735,9 +742,10 @@ describe('Contail Analytics Datasource', function () {
       {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'process_mem_cpu_usage.cpu_share', 'op': 6, 'value': '6000000', 'value2': undefined}, {'name': 'process_mem_cpu_usage.cpu_share', 'op': 5, 'value': '10000000', 'value2': undefined}], [{'name': 'process_mem_cpu_usage.__key', 'op': 6, 'value': '67', 'value2': undefined}]], 'limit': 1000},
       {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'name', 'value': '', 'op': 7}]], 'limit': 1000},
       {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'process_mem_cpu_usage.cpu_share', 'op': 6, 'value': '6000000', 'value2': undefined}, {'name': 'process_mem_cpu_usage.cpu_share', 'op': 5, 'value': '10000000', 'value2': undefined}], [{'name': 'process_mem_cpu_usage.__key', 'op': 6, 'value': '67', 'value2': undefined}]], 'limit': 1000, 'filter': [{'name': 'someCol', 'value': 9000000, 'op': 3, 'value2': 6000000}]},
-      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'name', 'value': '', 'op': 7}]], 'limit': 1000}
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T', 'someCol'], 'where': [[{'name': 'name', 'value': '', 'op': 7}]], 'limit': 1000},
+      {'table': 'someTable', 'start_time': NaN, 'end_time': NaN, 'select_fields': ['T=15', 'AVG(someCol)'], 'where': [[{'name': 'name', 'value': '', 'op': 7}]], 'limit': 1000}
     ];
-    expect(result).to.have.length(6);
+    expect(result).to.have.length(7);
     expect(result).to.deep.equal(expectedRes);
     done();
   });

@@ -43,6 +43,7 @@ Common.strings = {
 Common.allOperators = ['EQUAL', 'NOT_EQUAL', 'IN_RANGE', 'NOT_IN_RANGE', 'LEQ', 'GEQ', 'PREFIX', 'REGEX_MATCH'];
 Common.filteredCol = ['t', 't=', 'class(t)', 'class(t=)'];
 Common.numTypes = ['int', 'long', 'percentiles', 'double', 'avg'];
+Common.aggPrefix = ['SUM(', 'AVG(', 'MIN(', 'MAX(', 'PERCENTILES(', 'COUNT('];
 Common.toDate = function (someDate) {
   if (someDate !== null && typeof someDate === 'object') {
     const timeString = someDate._d || someDate._i;
@@ -70,9 +71,12 @@ Common.processResultData = function (result) {
     // TODO: normalize data here
   const newData = [];
   _.each(result.data.value, (d, i) => {
-    const time = d.T;
+    const time = d.T || d['T='];
     _.each(d, (v, k) => {
-      if (k != 'T' && k != 'CLASS(T)') { newData.push([v, time / 1000]); }
+      if (k !== 'T' &&
+          k !== 'T=' &&
+          k !== 'CLASS(T=)' &&
+          k !== 'CLASS(T)') { newData.push([v, time / 1000]); }
     });
   });
   return {'target': result.config.data.select_fields[1], 'datapoints': newData};
@@ -122,6 +126,13 @@ Common.isValidQuery = function (targetObj) {
       !targetObj.selCol ||
       !targetObj.selCol === Common.strings.selectColumn) { return false; }
   return true;
+};
+Common.isAggregateField = function (fieldName) {
+  if (fieldName === undefined || fieldName === null) { return false; }
+  for (let index = 0; index < Common.aggPrefix.length; ++index) {
+    if (fieldName.indexOf(Common.aggPrefix[index]) === 0) { return true; }
+  }
+  return false;
 };
 Common.transform = function (targetObj) {
   if (targetObj.filter) {

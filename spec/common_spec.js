@@ -220,6 +220,35 @@ describe('common.js', function () {
     done();
   });
 
+  it('[isAggregateField] should return false on non aggregate field', function (done) {
+    let input = 'abc';
+    let res = Common.isAggregateField(input);
+    expect(res).to.be.false;
+    done();
+  });
+
+  it('[isAggregateField] should return true on aggregate field', function (done) {
+    let input = 'SUM(abc)';
+    let res = Common.isAggregateField(input);
+    expect(res).to.be.true;
+    input = 'COUNT(abc)';
+    res = Common.isAggregateField(input);
+    expect(res).to.be.true;
+    input = 'AVG(abc)';
+    res = Common.isAggregateField(input);
+    expect(res).to.be.true;
+    input = 'MIN(abc)';
+    res = Common.isAggregateField(input);
+    expect(res).to.be.true;
+    input = 'MAX(abc)';
+    res = Common.isAggregateField(input);
+    expect(res).to.be.true;
+    input = 'PERCENTILES(abc)';
+    res = Common.isAggregateField(input);
+    expect(res).to.be.true;
+    done();
+  });
+
   it('[transform] should return the tranformed filter and where properties', function (done) {
     let inputs = [
       {filter: null, where: null},

@@ -232,11 +232,15 @@ export class GenericDatasource {
       let fromTime = Common.toDate(options.range.from);
       toTime = Math.round(toTime);
       fromTime = Math.round(fromTime);
+      let timeCol = 'T';
+      if (Common.isAggregateField(target.selCol) === true) {
+        timeCol = 'T=' + ((options.intervalMs || 60000) / 1000);
+      }
       let qObj = {
         'table': this.templateSrv.replace(target.table),
         'start_time': fromTime,
         'end_time': toTime,
-        'select_fields': ['T', target.selCol],
+        'select_fields': [timeCol, target.selCol],
         'where': target.where || [[{'name': 'name', 'value': '', 'op': 7}]],
         'limit': options.maxDataPoints || 1000
       };
