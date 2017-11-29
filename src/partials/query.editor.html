@@ -61,7 +61,7 @@ SOFTWARE.-->
     </div>
   </div>
   <div class="gf-form-group" ng-if="ctrl.target.advanced">
-    <div class="gf-form-group">
+    <div class="gf-form-group" ng-if="!ctrl.isAggregateField(ctrl.target.selCol)">
       <span class="gf-form-label width-7">Filter</span>
       <div class="gf-form-inline">
           <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.target.selCol" readonly>

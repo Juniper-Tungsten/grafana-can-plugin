@@ -233,7 +233,8 @@ export class GenericDatasource {
       toTime = Math.round(toTime);
       fromTime = Math.round(fromTime);
       let timeCol = 'T';
-      if (Common.isAggregateField(target.selCol) === true) {
+      let isAggField = Common.isAggregateField(target.selCol);
+      if (isAggField === true) {
         timeCol = 'T=' + ((options.intervalMs || 60000) / 1000);
       }
       let qObj = {
@@ -244,7 +245,7 @@ export class GenericDatasource {
         'where': target.where || [[{'name': 'name', 'value': '', 'op': 7}]],
         'limit': options.maxDataPoints || 1000
       };
-      if (target.filter) { qObj.filter = target.filter; }
+      if (target.filter && isAggField !== true) { qObj.filter = target.filter; }
       retVal.push(qObj);
     });
     // options.targets = targets;

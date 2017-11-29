@@ -119,6 +119,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.randomId = 'chechbox-id' + Math.floor(Math.random() * 10000000);
     return this.randomId;
   }
+
+  isAggregateField(fieldName) {
+    return Common.isAggregateField(fieldName);
+  }
 }
 
 GenericDatasourceQueryCtrl.templateUrl = 'partials/query.editor.html';
