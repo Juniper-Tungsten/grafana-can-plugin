@@ -1,11 +1,7 @@
 {
   "name": "Contrail Analytics",
-  "id": "contrailanalytics",
+  "id": "juniper-contrailanalytics-datasource",
   "type": "datasource",
-
-  "partials": {
-    "config": "public/app/plugins/datasource/contrailanalytics/partials/config.html"
-  },
 
   "metrics": true,
   "annotations": true,
@@ -24,6 +20,7 @@
       {"name": "GitHub", "url": "https://github.com/Juniper/grafana-can-plugin"},
       {"name": "MIT License", "url": "https://github.com/Juniper/grafana-can-plugin/blob/master/LICENSE"}
     ],
+    "keywords": ["contrail analytics", "CAN", "contrail", "datasource"],
     "version": "1.0.0",
     "updated": "2017-09-19"
   },
