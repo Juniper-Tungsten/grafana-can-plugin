@@ -52,8 +52,8 @@ These links would be helpful for CORS setup in keystone:
 ### Some ways to bypass CORS
 Please note that all the methods listed below are hacks and should not be used in production.
 
-- Use `proxy` access while configuring data source in grafana. When this option is set, grafana server makes a request to contrail instead of your browser. But, there is a catch. If your `keystone-url` and `url` differ in (origin)[https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy], grafana would not relay the requests to `keystone-url` via the backend.
-- Set up grafana to share the (origin)[https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy] as your keystone. You can install grafana on the same host as keystone for this. Now use the `proxy` access feature of grafana to reach contrail-api server.
+- Use `proxy` access while configuring data source in grafana. When this option is set, grafana server makes a request to contrail instead of your browser. But, there is a catch. If your `keystone-url` and `url` differ in [origin](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy), grafana would not relay the requests to `keystone-url` via the backend.
+- Set up grafana to share the [origin](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy) as your keystone. You can install grafana on the same host as keystone for this. Now use the `proxy` access feature of grafana to reach contrail-api server.
  
 # Dev setup
 This plugin requires node 6.10.0
