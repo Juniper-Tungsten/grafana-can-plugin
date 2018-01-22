@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Juniper/grafana-can-plugin.git"
+    "url": "https://github.com/Juniper/grafana-can-plugin.git"
   },
   "author": {
     "name": "Juniper Networks",
