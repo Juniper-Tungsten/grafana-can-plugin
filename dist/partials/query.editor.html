@@ -1,0 +1,114 @@
+ <!--The MIT License (MIT)
+
+Copyright (c) 2016 Grafana
+Copyright 2017, Juniper Networks, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.-->
+ 
+ <query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="false">
+  <div class="gf-form-inline" ng-init="randomId=ctrl.getRandomId()">
+    <!--<div class="gf-form max-width-8">
+      <select class="gf-form-input" ng-model="ctrl.target.type" ng-options="ctrl.getTimeIntervals"></select>
+    </div>-->
+
+    <!--<div class="gf-form" ng-if="ctrl.target.rawQuery">
+      <textarea class="gf-form-input" rows="5" ng-model="ctrl.target.table" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+    </div>-->
+
+    <!--<div class="gf-form" ng-if="!ctrl.target.rawQuery">
+      <select ng-change="ctrl.onChangeInternal()" ng-model="ctrl.target.table"  ng-options="x.text for x in ctrl.getOptions()"></select>
+    </div>-->
+
+    <div ng-if="!ctrl.target.rawQuery">
+      <div class="gf-form-select-wrapper max-width-21">
+        <metric-segment-model property="ctrl.target.table" get-options="ctrl.getTables()" on-change="ctrl.onChangeTable()"
+          css-class="gf-form-input"></metric-segment-model>
+      </div>
+    </div>
+    <div class="gf-form-select-wrapper max-width-21" ng-if="ctrl.target.pCols">
+      <select class="gf-form-input" 
+        ng-change="ctrl.colSelect()" 
+        ng-model="ctrl.target.selCol"  
+        ng-options="x for x in ctrl.target.pCols"
+        ng-init="ctrl.target.selCol = ctrl.target.selCol || ctrl.target.pCols[0]">
+      </select>
+    </div>
+    <div class="gf-form">
+      <!--{{randomId=angular.element('this').closest('query-editor-row').attr('class');""}}-->
+      <gf-from-switch class="gf-form" label="Advanced">
+        <label class="gf-form-label"> Advanced </label>
+        <div class="gf-form-switch">
+          <input id="{{randomId}}" type="checkbox" ng-model="ctrl.target.advanced">
+          <label for="{{randomId}}" data-on="Yes" data-off="No"></label>
+        </div>
+      </gf-from-switch>
+    </div>
+  </div>
+  <div class="gf-form-group" ng-if="ctrl.target.advanced">
+    <div class="gf-form-group" ng-if="!ctrl.isAggregateField(ctrl.target.selCol)">
+      <span class="gf-form-label width-7">Filter</span>
+      <div class="gf-form-inline">
+          <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.target.selCol" readonly>
+          <div class="gf-form-select-wrapper max-width-8">
+            <select class="gf-form-input" 
+              ng-model="ctrl.target.filterObj.selFilterOp" 
+              ng-options="x for x in ctrl.getOperators()" 
+              ng-init="ctrl.target.filterObj.selFilterOp = ctrl.target.filterObj.selFilterOp || ctrl.getOperators()[0]">
+            </select>
+          </div>
+          <input class="gf-form-input max-width-8" type="number" ng-model="ctrl.target.filterObj.filterVal" > 
+          <input class="gf-form-input max-width-8" type="number" ng-if="ctrl.target.filterObj.selFilterOp.toLowerCase().indexOf('range') !== -1" ng-model="ctrl.target.filterObj.filterVal2" > 
+      </div>
+    </div>
+    <div class="gf-form-group">
+      <div class="gf-form">
+        <span class="gf-form-label width-7">Where</span>
+        <button class="gf-form-input max-width-10" id="addOrButton" type="button" ng-click="ctrl.addOrRow()">+ Add Row</button>
+      </div>
+      <div class="gf-form-group">
+        <div ng-repeat="orRow in ctrl.target.whereArray" class="gf-form-group">
+          <span class="gf-form-label width-4" ng-if="ctrl.target.whereArray.length>1 && $index > 0">OR</span>
+          <div ng-repeat="andRow in orRow" class="gf-form-inline">
+            <span class="gf-form-label width-5" class="gf-form" ng-if="orRow.length > 1 && $index >0">AND</span>
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="andRow.name" 
+                ng-options="x for x in ctrl.getIndexCols()">
+              </select>
+                <!--ng-init="andRow.name = andRow.name || ctrl.getIndexCols()[0]">-->
+            </div>
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="andRow.op" 
+                ng-options="x for x in ctrl.getOperators(andRow.name)" 
+                ng-init="andRow.op = andRow.op || ctrl.getOperators()[0]">
+              </select>
+            </div>
+            <input class="gf-form-input max-width-8" type="text" ng-model="andRow.value" > 
+            <input class="gf-form-input max-width-8" type="text" ng-if="andRow.op.toLowerCase().indexOf('range') !== -1" ng-model="andRow.value2" > 
+            <div class="gf-form">
+              <button class="gf-form-input max-width-5" type="button" ng-click="ctrl.delAndRow($parent.$index, $index)">x</button>
+              <button class="gf-form-input max-width-5" type="button" ng-click="ctrl.addAndRow($parent.$index)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> 
+</query-editor-row>

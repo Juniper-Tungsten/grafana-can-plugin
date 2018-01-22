@@ -1,0 +1,154 @@
+ <!--The MIT License (MIT)
+
+Copyright (c) 2016 Grafana
+Copyright 2017, Juniper Networks, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.-->
+<gf-from-switch class="gf-form" label="Alarm">
+  <label class="gf-form-label"> Alarm </label>
+  <div class="gf-form-switch">
+    <input id="alarm-1" type="checkbox" ng-model="ctrl.annotation.alarm">
+    <label for="alarm-1" data-on="Yes" data-off="No"></label>
+  </div>
+</gf-from-switch>
+<div ng-if="ctrl.annotation.alarm" class="gf-form">
+  <div class="gf-form-inline">
+    <span class="gf-form-label width-7">UVE Node</span>
+    <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.annotation.alarmUVEName">
+  </div>
+  <div class="gf-form-inline">
+    <span class="gf-form-label width-7">Node name</span>
+    <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.annotation.alarmNodeName">
+  </div>
+</div>
+<div ng-if="!ctrl.annotation.alarm">
+  <h5 class="section-heading">Query</h5>
+  <div class="gf-form-group">
+    <div class="gf-form-inline">
+      <input class="gf-form-input max-width-21" type="text" ng-model="ctrl.annotation.query" ng-init="ctrl.annotation.query='SELECT * FROM MessageTable'" readonly>
+      <gf-from-switch class="gf-form" label="Advanced">
+        <label class="gf-form-label"> Advanced </label>
+        <div class="gf-form-switch">
+          <input id="annotation-1" type="checkbox" ng-model="ctrl.annotation.advanced">
+          <label for="annotation-1" data-on="Yes" data-off="No"></label>
+        </div>
+      </gf-from-switch>
+    </div>
+  </div>
+  <div class="gf-form-group" ng-if="ctrl.annotation.advanced" ng-init="operators=ctrl.getOperators()">
+      <div class="gf-form-group" ng-init="ctrl.annotation.filterArray = ctrl.annotation.filterArray || []">
+        <div class="gf-form">
+          <span class="gf-form-label width-7">Filter</span>
+          <button class="gf-form-input max-width-10" type="button"  ng-click="ctrl.annotation.filterArray.push({})">+ Add Row</button>
+        </div>
+        <div class="gf-form-group">
+          <div ng-repeat="andRow in ctrl.annotation.filterArray" class="gf-form-inline">
+            <span class="gf-form-label width-4" ng-if="ctrl.annotation.filterArray.length>1 && $index > 0">AND</span>
+              <div class="gf-form-select-wrapper max-width-8">
+                <select class="gf-form-input" 
+                  ng-model="andRow.name"
+                  ng-init="andRow.name = andRow.name || ctrl.getAllCols()[0]" 
+                  ng-options="x for x in ctrl.getAllCols()">
+                </select>
+              </div>
+              <div class="gf-form-select-wrapper max-width-8">
+                <select class="gf-form-input" 
+                  ng-model="andRow.op" 
+                  ng-options="x for x in operators" 
+                  ng-init="andRow.op = andRow.op || operators[0]">
+                </select>
+              </div>
+              <input class="gf-form-input max-width-8" type="text" ng-model="andRow.value" > 
+              <input class="gf-form-input max-width-8" type="text" ng-if="andRow.op.toLowerCase().indexOf('range') !== -1" ng-model="andRow.value2" > 
+              <div class="gf-form">
+                <button class="gf-form-input max-width-5" type="button" ng-click="ctrl.annotation.filterArray.splice($index, 1)">x</button>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="gf-form-group" ng-init="ctrl.annotation.whereArray = ctrl.annotation.whereArray || []">
+        <div class="gf-form">
+          <span class="gf-form-label width-7">Where</span>
+          <button class="gf-form-input max-width-10" id="addOrButton" type="button"  ng-click="ctrl.annotation.whereArray.push([{}])">+ Add Row</button>
+        </div>
+        <div class="gf-form-group">
+          <div ng-repeat="orRow in ctrl.annotation.whereArray" class="gf-form-group">
+            <span class="gf-form-label width-4" ng-if="ctrl.annotation.whereArray.length>1 && $index > 0 && ctrl.annotation.whereArray[$index].length>0">OR</span>
+            <div ng-repeat="andRow in orRow" class="gf-form-inline" >
+              <span class="gf-form-label width-5" class="gf-form" ng-if="orRow.length > 1 && $index >0">AND</span>
+              <div class="gf-form-select-wrapper max-width-8">
+                <select class="gf-form-input" 
+                  ng-model="andRow.name"
+                  ng-init="andRow.name = andRow.name || ctrl.getIndexCols()[0]" 
+                  ng-options="x for x in ctrl.getIndexCols()">
+                </select>
+              </div>
+              <div class="gf-form-select-wrapper max-width-8">
+                <select class="gf-form-input" 
+                  ng-model="andRow.op" 
+                  ng-options="x for x in operators" 
+                  ng-init="andRow.op = andRow.op || operators[0]">
+                </select>
+              </div>
+              <input class="gf-form-input max-width-8" type="text" ng-model="andRow.value" > 
+              <input class="gf-form-input max-width-8" type="text" ng-if="andRow.op.toLowerCase().indexOf('range') !== -1" ng-model="andRow.value2" > 
+              <div class="gf-form">
+                <button class="gf-form-input max-width-5" type="button" ng-click="ctrl.annotation.whereArray[$parent.$index].splice($index, 1)">x</button>
+                <button class="gf-form-input max-width-5" type="button" ng-click="ctrl.annotation.whereArray[$parent.$index].push({})">+</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <h5 class="section-heading">Column Mappings</h5>
+  <div class="gf-form-group">
+    <div class="gf-form-inline">
+          <div class="gf-form">
+            <span class="gf-form-label width-7">Title</span>
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="ctrl.annotation.titleMapping"
+                ng-init="ctrl.annotation.titleMapping = ctrl.annotation.titleMapping || ctrl.getAllCols()[0]" 
+                ng-options="x for x in ctrl.getAllCols()">
+              </select>
+            </div>
+            <span class="gf-form-label width-7">Tags</span> 
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="ctrl.annotation.tagMapping"
+                ng-init="ctrl.annotation.tagMapping = ctrl.annotation.tagMapping || ctrl.getAllCols()[0]" 
+                ng-options="x for x in ctrl.getAllCols()">
+              </select>
+            </div>
+            <span class="gf-form-label width-7">Text</span> 
+            <div class="gf-form-select-wrapper max-width-8">
+              <select class="gf-form-input" 
+                ng-model="ctrl.annotation.textMapping"
+                ng-init="ctrl.annotation.textMapping = ctrl.annotation.textMapping || ctrl.getAllCols()[0]" 
+                ng-options="x for x in ctrl.getAllCols()">
+              </select>
+            </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+

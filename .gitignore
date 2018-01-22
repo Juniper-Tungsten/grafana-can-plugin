@@ -1,4 +1,3 @@
-dist
 node_modules
 npm-debug.log
 yarn-error.log
@@ -39,6 +38,6 @@ grafana
 .notouch
 
 # Test artifacts
-/dist/test/
+dist/test/
 
 .DS_Store
